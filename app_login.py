@@ -63,7 +63,7 @@ def login():
         }
         if username in credentials and credentials[username] == password:
             st.session_state.logged_in = True
-            st.experimental_rerun()   # Immediately re-run to avoid double-click
+            st.rerun()   # Immediately re-run to avoid double-click
         else:
             st.error("Invalid username or password. Please try again.")
 
