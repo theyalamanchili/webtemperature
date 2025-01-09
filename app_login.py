@@ -47,7 +47,7 @@ def login():
     # Display the logo only on the login page
     logo_path = "MEEN_logo.png"  # Ensure the image file is in the same directory
     logo = Image.open(logo_path)
-    st.image(logo, width=400, use_container_width="never")  # Adjust the width as needed
+    st.image(logo, width=400, use_container_width="auto")  # Adjust the width as needed
     st.title("Login")
     # Username and password inputs
     username = st.text_input("Username")
