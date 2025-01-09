@@ -47,7 +47,7 @@ def login():
     # Display the logo only on the login page
     logo_path = "MEEN_logo.png"  # Ensure the image file is in the same directory
     logo = Image.open(logo_path)
-    st.image(logo, width=400, use_column_width="never")  # Adjust the width as needed
+    st.image(logo, width=400, use_container_width="never")  # Adjust the width as needed
     st.title("Login")
     # Username and password inputs
     username = st.text_input("Username")
@@ -174,7 +174,7 @@ if __name__ == "__main__":
          # Display the selected boundary condition image on the main page
         st.subheader("Selected Boundary Condition")
         if bc_option == "Free span convective cooling":
-            st.image("BC2.png", caption="Free Span Convective Cooling", width=500,use_column_width="auto")
+            st.image("BC2.png", caption="Free Span Convective Cooling", width=500,use_container_width="auto")
         elif bc_option == "Web over a heated/ cooled roller":
             st.image("BC1.png", caption="Web over a Heated/Cooled Roller", width=500)
         else:  # "Web in a heating/ cooling zone"
