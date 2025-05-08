@@ -1,6 +1,6 @@
 streamlit
+plotly
+scipy
+pillow
 numpy
 pandas
-scipy
-matplotlib
-plotly
