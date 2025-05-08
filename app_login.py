@@ -110,20 +110,9 @@ In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels th
 
 This app solves two analytical models under *steady‑state* conditions:
 
-1. **2D convection–diffusion** (across thickness _y_ and along span _x_):  
-   
-   $$ \frac{\partial^2 T}{\partial x^2} \;+\; \frac{\partial^2 T}{\partial y^2} \;-\; 2\,\beta\,\frac{\partial T}{\partial x} \;=\; 0, 
-   \quad \beta=\frac{\rho\,c\,v}{2\,k}. $$
+1. **2D convection–diffusion** (across thickness _y_ and along span _x_)
 
-2. **1D lumped‑capacitance** (uniform through‑thickness approximation):  
-   
-   $$ \frac{d^2 T}{dx^2}
-      \;-\;
-      2\,\beta\,\frac{dT}{dx}
-      \;-\;
-      m^2\,(T - T_\infty)
-      = 0,
-   \quad m^2=\frac{h\,P}{k\,A}. $$
+2. **1D lumped‑capacitance** (uniform through‑thickness approximation)
 
 **Assumptions**  
 - Material properties (_k_, _ρ_, _c_) constant  
