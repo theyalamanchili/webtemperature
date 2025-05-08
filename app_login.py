@@ -17,7 +17,9 @@ def add_styles():
         .footer { position: fixed; bottom: 0; width: 100%; text-align: center;
                   font-size: 0.8rem; color: #555; }
         </style>
-        """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 # -----------------------------------------------
 # Login Screen
@@ -32,10 +34,10 @@ def login():
 
     if st.button("Login"):
         creds = {
-            "Guest": "GuestPass",
-            "Aditya": "Yalamanchili",
-            "Prabhakar": "Pagilla",
-            "admin": "adminpass"
+            "Guest":    "GuestPass",
+            "Aditya":   "Yalamanchili",
+            "Prabhakar":"Pagilla",
+            "admin":    "adminpass"
         }
         if creds.get(user) == pwd:
             st.session_state.logged_in = True
@@ -49,33 +51,37 @@ def login():
 def footer():
     st.markdown(
         """
-        <div class='footer'>Version α 0.1 | © 2025 Texas A&amp;M University</div>
-        """, unsafe_allow_html=True)
+        <div class='footer'>
+          Version α 0.1 | © 2025 Texas A&amp;M University
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # -----------------------------------------------
-# Solver: 2D convective free span
+# 2D / 1D Solvers
 # -----------------------------------------------
 def solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N):
     Y = t/2
     dT = T0 - Tinf
-    beta = rho * c * v / (2 * k)
-    Bi   = h * Y / k
+    beta = rho*c*v/(2*k)
+    Bi   = h*Y/k
 
-    def fz(z): return np.tan(z) - Bi / z
+    def fz(z): return np.tan(z) - Bi/z
 
     eps = 1e-6
     z = np.zeros(N)
     z[0] = fsolve(fz, [eps, np.pi/2 - eps])[0]
     odds = np.arange(1, 2*N, 2)
     for i in range(1, N):
-        lo = odds[i-1] * np.pi/2 + eps
+        lo = odds[i-1]*np.pi/2 + eps
         hi = lo + np.pi - 2*eps
         z[i] = fsolve(fz, [lo, hi])[0]
 
     lam = z / Y
     a   = np.array([
         (2*dT * np.sin(z[i])) /
-        (z[i] + np.sin(z[i]) * np.cos(z[i]))
+        (z[i] + np.sin(z[i])*np.cos(z[i]))
         for i in range(N)
     ])
 
@@ -92,18 +98,15 @@ def solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N):
     )
     return x, y, X, Yg, (Tinf + Theta)
 
-# -----------------------------------------------
-# Solver: 1D analytical
-# -----------------------------------------------
 def solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x):
     Y = t/2
     dT = T0 - Tinf
-    beta = rho * c * v / (2 * k)
-    A = 2 * W * Y
-    P = 2 * W + 2 * Y
-    m2 = h * P / (k * A)
+    beta = rho*c*v/(2*k)
+    A = 2*W*Y
+    P = 2*W + 2*Y
+    m2 = h*P/(k*A)
     mu = beta - np.sqrt(beta**2 + m2)
-    return Tinf + dT * np.exp(mu * x)
+    return Tinf + dT*np.exp(mu*x)
 
 # -----------------------------------------------
 # Main Application
@@ -117,7 +120,7 @@ if 'logged_in' not in st.session_state:
 # Show login until successful
 if not st.session_state.logged_in:
     login()
-    st.stop()
+    st.stop()    # halt here until login succeeds
 
 # Main UI after login
 st.title("Web Temperature Distribution Simulator")
@@ -154,33 +157,30 @@ st.sidebar.header("Material Properties")
 matlib = {
     'Aluminum': {'k': 237, 'rho': 2700, 'c': 897},
     'Copper':   {'k': 401, 'rho': 8960, 'c': 385},
-    'PET':      {'k': 0.2, 'rho': 1390, 'c': 1400}
+    'PET':      {'k':   0.2, 'rho': 1390, 'c':1400},
 }
-mat = st.sidebar.selectbox(
-    "Material", list(matlib.keys()) + ['Custom']
-)
+mat = st.sidebar.selectbox("Material", list(matlib.keys()) + ['Custom'])
 if mat != 'Custom':
     k, rho, c = matlib[mat].values()
     st.sidebar.write(f"k={k} W/m·K, ρ={rho} kg/m³, c={c} J/kg·K")
 else:
     k   = st.sidebar.number_input("Thermal conductivity k [W/m·K]", 0.1, 500.0, 0.2)
-    rho = st.sidebar.number_input("Density ρ [kg/m³]", 100, 20000, 1400)
-    c   = st.sidebar.number_input("Specific heat c [J/kg·K]", 100, 5000, 1400)
+    rho = st.sidebar.number_input("Density ρ [kg/m³]",           100, 20000, 1390)
+    c   = st.sidebar.number_input("Specific heat c [J/kg·K]",     100,  5000, 1400)
 
 st.sidebar.markdown("---")
 
 # ---- Process Parameters ----
 st.sidebar.header("Process Parameters")
-v    = st.sidebar.number_input("Web speed v [m/s]", 0.01, 10.0, 1.6)
-T0   = st.sidebar.number_input("Inlet temp T₀ [°C]", -50.0, 500.0, 200.0)
-Tinf = st.sidebar.number_input("Ambient temp T∞ [°C]", -50.0, 200.0, 25.0)
+v    = st.sidebar.number_input("Web speed v [m/s]",      0.01, 10.0, 1.6)
+T0   = st.sidebar.number_input("Inlet temp T₀ [°C]",     -50.0, 500.0, 200.0)
+Tinf = st.sidebar.number_input("Ambient temp T∞ [°C]",   -50.0, 200.0, 25.0)
 h    = st.sidebar.number_input("Convective coeff h [W/m²·K]", 1.0, 10000.0, 100.0)
 t    = st.sidebar.number_input(
-    "Web thickness t [m]", 1e-6, 1e-2, 0.001,
-    step=1e-6, format="%.6f"
+    "Web thickness t [m]", 1e-6, 1e-2, 0.001, step=1e-6, format="%.6f"
 )
-W    = st.sidebar.number_input("Web width W [m]", 0.01, 5.0, 1.0)
-L    = st.sidebar.number_input("Span length L [m]", 0.1, 50.0, 10.0)
+W    = st.sidebar.number_input("Web width W [m]",        0.01, 5.0, 1.0)
+L    = st.sidebar.number_input("Span length L [m]",      0.1, 50.0, 10.0)
 N    = st.sidebar.slider("Series terms N", 5, 50, 20)
 
 # ---- Compute button ----
@@ -196,14 +196,13 @@ if st.button("Compute"):
 # ---- Display results ----
 if st.session_state.get('ready', False):
     x, y, X, Yg, T2, T1 = (
-        st.session_state[key]
-        for key in ['x','y','X','Yg','T2','T1']
+        st.session_state[key] for key in ['x','y','X','Yg','T2','T1']
     )
 
     # Dimensionless numbers
-    Yh = t/2
-    Bi_num = h * Yh / k
-    Pe_num = v * L / (k / (rho * c))
+    Yh    = t/2
+    Bi_num= h * Yh / k
+    Pe_num= v * L / (k / (rho * c))
 
     # 2D Contour
     st.subheader("2D Temperature Contour")
@@ -228,9 +227,9 @@ if st.session_state.get('ready', False):
     fig.update_yaxes(showgrid=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    # Biot & Peclet
+    # Biot & Peclet display
     st.markdown(f"""**Biot number (Bi):** {Bi_num:.2f}  
-**Péclet number (Pe):** {Pe_num:.1f}"""):** {Pe_num:.1f}")
+**Péclet number (Pe):** {Pe_num:.1f}""")
     st.markdown(
         """
         Biot indicates surface vs conduction; low Bi means conduction-dominated cooling.  
@@ -243,20 +242,21 @@ if st.session_state.get('ready', False):
     idx_mid = np.argmin(np.abs(y))
     idx_top = np.argmin(np.abs(y - Yh))
     idx_bot = np.argmin(np.abs(y + Yh))
-    Tavg = T2.mean(axis=0)
-    Tmid = T2[idx_mid]
-    Ttop = T2[idx_top]
-    Tbot = T2[idx_bot]
+    Tavg, Tmid, Ttop, Tbot = (
+        T2.mean(axis=0),
+        T2[idx_mid],
+        T2[idx_top],
+        T2[idx_bot]
+    )
 
-    # Styling for lines
-    line_styles = {
-        '2D avg': {'color':'blue',   'dash':'solid'},
-        'Mid-plane':{'color':'green', 'dash':'dash'},
-        'Top surface':{'color':'red',    'dash':'dot'},
-        'Bot surface':{'color':'purple', 'dash':'dashdot'},
-        '1D soln':{'color':'black', 'dash':'longdash'}
+    style_map = {
+        '2D avg':       dict(color='blue',  dash='solid'),
+        'Mid-plane':    dict(color='green', dash='dash'),
+        'Top surface':  dict(color='red',   dash='dot'),
+        'Bot surface':  dict(color='purple',dash='dashdot'),
+        '1D soln':      dict(color='black', dash='longdash')
     }
-    mark_syms = {
+    markers = {
         '2D avg':'circle', 'Mid-plane':'square',
         'Top surface':'triangle-up','Bot surface':'triangle-down','1D soln':'x'
     }
@@ -265,42 +265,43 @@ if st.session_state.get('ready', False):
     show_mid = st.checkbox("Show mid-plane")
     show_top = st.checkbox("Show top surface")
     show_bot = st.checkbox("Show bot surface")
-    show_1d = st.checkbox("Show 1D soln")
+    show_1d  = st.checkbox("Show 1D soln")
 
     if any([show_avg, show_mid, show_top, show_bot, show_1d]):
         fig2 = go.Figure()
         if show_avg:
             fig2.add_trace(go.Scatter(
                 x=x, y=Tavg, mode='lines+markers', name='2D avg',
-                line=line_styles['2D avg'],
-                marker=dict(symbol=mark_syms['2D avg'], size=6, color=line_styles['2D avg']['color'])
+                line=style_map['2D avg'],
+                marker=dict(symbol=markers['2D avg'], size=6, color=style_map['2D avg']['color'])
             ))
         if show_mid:
             fig2.add_trace(go.Scatter(
                 x=x, y=Tmid, mode='lines+markers', name='Mid-plane',
-                line=line_styles['Mid-plane'],
-                marker=dict(symbol=mark_syms['Mid-plane'], size=6, color=line_styles['Mid-plane']['color'])
+                line=style_map['Mid-plane'],
+                marker=dict(symbol=markers['Mid-plane'], size=6, color=style_map['Mid-plane']['color'])
             ))
         if show_top:
             fig2.add_trace(go.Scatter(
                 x=x, y=Ttop, mode='lines+markers', name='Top surface',
-                line=line_styles['Top surface'],
-                marker=dict(symbol=mark_syms['Top surface'], size=6, color=line_styles['Top surface']['color'])
+                line=style_map['Top surface'],
+                marker=dict(symbol=markers['Top surface'], size=6, color=style_map['Top surface']['color'])
             ))
         if show_bot:
             fig2.add_trace(go.Scatter(
                 x=x, y=Tbot, mode='lines+markers', name='Bot surface',
-                line=line_styles['Bot surface'],
-                marker=dict(symbol=mark_syms['Bot surface'], size=6, color=line_styles['Bot surface']['color'])
+                line=style_map['Bot surface'],
+                marker=dict(symbol=markers['Bot surface'], size=6, color=style_map['Bot surface']['color'])
             ))
         if show_1d:
             fig2.add_trace(go.Scatter(
                 x=x, y=T1, mode='lines+markers', name='1D soln',
-                line=line_styles['1D soln'],
-                marker=dict(symbol=mark_syms['1D soln'], size=6, color=line_styles['1D soln']['color'])
+                line=style_map['1D soln'],
+                marker=dict(symbol=markers['1D soln'], size=6, color=style_map['1D soln']['color'])
             ))
         fig2.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
             xaxis_title='x (m)', yaxis_title='Temperature (°C)',
             legend=dict(title='Profile')
         )
@@ -316,18 +317,19 @@ if st.session_state.get('ready', False):
         fig3 = go.Figure()
         if dm:
             fig3.add_trace(go.Scatter(
-                x=x, y=Tmid - Ttop, mode='lines+markers', name='Mid−Top',
+                x=x, y=Tmid-Ttop, mode='lines+markers', name='Mid−Top',
                 line=dict(color='orange', dash='dash'),
-                marker=dict(symbol='circle', color='orange', size=6)
+                marker=dict(symbol='circle', size=6, color='orange')
             ))
         if da:
             fig3.add_trace(go.Scatter(
-                x=x, y=Tavg - T1, mode='lines+markers', name='avg−1D',
+                x=x, y=Tavg-T1, mode='lines+markers', name='avg−1D',
                 line=dict(color='brown', dash='dot'),
-                marker=dict(symbol='square', color='brown', size=6)
+                marker=dict(symbol='square', size=6, color='brown')
             ))
         fig3.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
             xaxis_title='x (m)', yaxis_title='ΔT (°C)',
             legend=dict(title='Difference')
         )
@@ -335,7 +337,7 @@ if st.session_state.get('ready', False):
         fig3.update_yaxes(showgrid=False)
         st.plotly_chart(fig3, use_container_width=True)
 
-    # Download CSV
+    # Download contour CSV
     df = pd.DataFrame({'x': X.flatten(), 'y': Yg.flatten(), 'T': T2.flatten()})
     buf = BytesIO()
     df.to_csv(buf, index=False)
