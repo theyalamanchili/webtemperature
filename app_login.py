@@ -147,8 +147,7 @@ This tool provides approximate analytical solutions under assumptions of constan
 
 **Citation:**
 If you use this program, please cite:
-Yalamanchili, A. V.; Sagapuram, D.; Pagilla, P. R. (2024). "Modeling Steady-State Temperature Distribution in Moving Webs in Roll-to-Roll Manufacturing." *Journal of Heat Transfer*. doi:10.1115/1.4051234
-""", unsafe_allow_html=False)
+Yalamanchili, A. V.; Pagilla, P. R. (2025). "Modeling Steady-State Temperature Distribution in Moving Webs in Roll-to-Roll Manufacturing.")
 
 # Sidebar: Boundary Condition
 st.sidebar.header("Boundary Condition")
