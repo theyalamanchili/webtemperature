@@ -227,8 +227,8 @@ if st.session_state.get('ready', False):
     st.markdown(f"**Biot number (Bi):** {Bi_num:.2f}  \n**Péclet number (Pe):** {Pe_num:.1f}")
     st.markdown(
         """
-        Bi: ratio of surface convection to conduction. Low Bi → conduction-dominated.  
-        Pe: ratio of advection to conduction. High Pe → advection-dominated.
+        Bi: ratio of surface convection to conduction. Low Bi: conduction-dominated.  
+        Pe: ratio of advection to conduction. High Pe: advection-dominated.
         """
     )
 
