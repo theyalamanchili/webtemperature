@@ -187,7 +187,7 @@ Tinf = st.sidebar.number_input("Ambient temp Tinf [degC]", -50.0, 200.0, 25.0)
 h    = st.sidebar.number_input("Convective HTC h [W/(m2·K)]", 1.0, 10000.0, 100.0)
 t    = st.sidebar.number_input("Thickness t [m]", 1e-6, 1e-2, 0.001, step=1e-6, format="%.6f")
 W    = st.sidebar.number_input("Width W [m]", 0.01, 5.0, 1.0)
-L    = st.sidebar.number_input("Span length L [m]", 0.1, 50.0, 10.0)
+L    = st.sidebar.number_input("Span length Let's L [m]", 0.1, 50.0, 10.0)
 N    = st.sidebar.slider("Series terms N", 5, 50, 20)
 
 # Compute button
@@ -215,8 +215,10 @@ if st.session_state.get('ready', False):
                                contours=dict(showlines=show)))
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown(f"**Biot number:** {Bi_num:.2f}  
-**Péclet number:** {Pe_num:.1f}")
+    st.markdown(
+        f"**Biot number:** {Bi_num:.2f}  \n"
+        f"**Péclet number:** {Pe_num:.1f}"
+    )
 
     st.subheader("Temperature Profiles vs Span")
     st.markdown("X-axis: span (m), Y-axis: temperature (degC)")
