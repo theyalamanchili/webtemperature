@@ -102,22 +102,24 @@ st.title("Web Temperature Distribution Simulator")
 
 # Read-Me / User Guide
 with st.expander("📖 Read Me / User Guide", expanded=False):
-    st.markdown("""
-**Description:**
+    st.markdown(
+        """
+**Description:**  
 Computes steady-state temperature distributions in a moving web using 2D and 1D analytical models.
 
-**Usage:**
+**Usage:**  
 1. Select scenario, material, temperatures, and parameters in sidebar.  
-2. Click **Compute** to display results and plots.  
+2. Click **Compute** to display combined plots.  
 3. Download CSV of temperature field.
 
-**Model Assumptions:**
+**Model Assumptions:**  
 - Constant properties, steady-state, series truncation.  
 - Validate experimentally for your setup.
 
 **Citation:**  
-Yalamanchili, A. V.; Sagapuram, D.; Pagilla, P. R. (2024). "Modeling Steady-State Temperature Distribution..."
-""")
+Yalamanchili, A. V.; Sagapuram, D.; Pagilla, P. R. (2024). Modeling Steady-State Temperature Distribution...
+"""
+    )
 
 # Sidebar: Web Transport Scenario
 st.sidebar.header("1. Web Transport Scenario")
@@ -153,8 +155,12 @@ materials = list(matlib.keys())+['Custom']
 mat = st.sidebar.selectbox("Material:", materials, index=0)
 if mat!='Custom':
     props=matlib[mat]
-    st.sidebar.markdown(f"- k: **{props['k']}** W/(m·K)  \n- rho: **{props['rho']}** kg/m³  \n- c: **{props['c']}** J/(kg·K)")
-    k,rho,c=props['k'],props['rho'],props['c']
+    st.sidebar.markdown(
+        f"- k: **{props['k']}** W/(m·K)  \n"
+        f"- rho: **{props['rho']}** kg/m³  \n"
+        f"- c: **{props['c']}** J/(kg·K)"
+    )
+    k,rho,c = props['k'],props['rho'],props['c']
 else:
     k   = st.sidebar.number_input("k [W/(m·K)]",0.1,500.0,0.2)
     rho = st.sidebar.number_input("rho [kg/m³]",100,20000,1390)
@@ -175,28 +181,49 @@ if st.sidebar.button("Compute"):
 # Display results
 if st.session_state.get('ready', False):
     x,y,X,Yg,T2,T1 = (st.session_state[var] for var in ['x','y','X','Yg','T2','T1'])
-    Yh=t/2; Bi_num=h*Yh/k; Pe_num=v*L/(k/(rho*c))
+    Yh = t/2
+    Bi_num = h * Yh / k
+    Pe_num = v * L / (k / (rho * c))
 
+    # 2D contour
     st.subheader("2D Temperature Contour")
-    st.markdown("**X-axis:** span position (m)  &nbsp; **Y-axis:** through-thickness (m)")
-    show=st.checkbox("Show contour lines & labels")
-    fig=go.Figure(go.Contour(z=T2,x=x,y=y,colorscale='Turbo',ncontours=60,contours=dict(showlines=show,showlabels=show)))
+    st.markdown("**X-axis:** span (m) &nbsp; **Y-axis:** thickness (m)")
+    show = st.checkbox("Show contour lines & labels")
+    fig = go.Figure(go.Contour(z=T2, x=x, y=y, colorscale='Turbo', ncontours=60,
+                               contours=dict(showlines=show, showlabels=show)))
     st.plotly_chart(fig, use_container_width=True)
+    st.markdown(f"**Biot number:** {Bi_num:.2f} &nbsp; **Péclet number:** {Pe_num:.1f}")
 
-    st.markdown(f"**Biot number:** {Bi_num:.2f}  &nbsp; **Péclet number:** {Pe_num:.1f}")
+    # Combined profiles
+    st.subheader("Temperature Profiles vs Span (all in one plot)")
+    fig_profiles = go.Figure()
+    fig_profiles.add_trace(go.Scatter(x=x, y=T2.mean(axis=0), mode='lines', name='2D average'))
+    fig_profiles.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y))], mode='lines', name='Mid-plane'))
+    fig_profiles.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y - Yh))], mode='lines', name='Top surface'))
+    fig_profiles.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y + Yh))], mode='lines', name='Bottom surface'))
+    fig_profiles.add_trace(go.Scatter(x=x, y=T1, mode='lines', name='1D model', line=dict(dash='dash')))
+    fig_profiles.update_layout(xaxis_title='Span position (m)', yaxis_title='Temperature (°C)', legend_title='Profiles')
+    st.plotly_chart(fig_profiles, use_container_width=True)
 
-    st.subheader("Temperature Profiles vs Span")
-    st.markdown("X-axis: span (m), Y-axis: temperature (°C)")
-    Tavg=T2.mean(axis=0); Tmid=T2[np.argmin(np.abs(y))]; Ttop=T2[np.argmin(np.abs(y-Yh))]; Tbot=T2[np.argmin(np.abs(y+Yh))]
-    profiles={'2D average':Tavg,'Mid-plane':Tmid,'Top surface':Ttop,'Bottom surface':Tbot,'1D model':T1}
-    for label,data in profiles.items():
-        if st.checkbox(label): st.plotly_chart(go.Figure(go.Scatter(x=x,y=data,mode='lines+markers',name=label)),use_container_width=True)
+    # Combined differences
+    st.subheader("Temperature Differences vs Span (all in one plot)")
+    fig_diff = go.Figure()
+    fig_diff.add_trace(go.Scatter(
+        x=x,
+        y=T2[np.argmin(np.abs(y))] - T2[np.argmin(np.abs(y - Yh))],
+        mode='lines', name='Mid-plane − Top surface'
+    ))
+    fig_diff.add_trace(go.Scatter(
+        x=x,
+        y=T2.mean(axis=0) - T1,
+        mode='lines', name='2D average − 1D model'
+    ))
+    fig_diff.update_layout(xaxis_title='Span position (m)', yaxis_title='Δ Temperature (°C)', legend_title='Differences')
+    st.plotly_chart(fig_diff, use_container_width=True)
 
-    st.subheader("Temperature Differences vs Span")
-    if st.checkbox("Mid-plane minus Top surface"): st.plotly_chart(go.Figure(go.Scatter(x=x,y=profiles['Mid-plane']-profiles['Top surface'],mode='lines',name='Mid-Top')),use_container_width=True)
-    if st.checkbox("2D average minus 1D model"): st.plotly_chart(go.Figure(go.Scatter(x=x,y=profiles['2D average']-profiles['1D model'],mode='lines',name='Avg-1D')),use_container_width=True)
-
-    df=pd.DataFrame({'x':X.flatten(),'y':Yg.flatten(),'T':T2.flatten()});buf=BytesIO();df.to_csv(buf,index=False);buf.seek(0)
-    st.download_button("Download CSV",buf,"temp_contour.csv","text/csv")
+    # Download Data
+    df = pd.DataFrame({'x':X.flatten(), 'y':Yg.flatten(), 'T':T2.flatten()})
+    buf = BytesIO(); df.to_csv(buf, index=False); buf.seek(0)
+    st.download_button("Download CSV", buf, "temp_contour.csv", "text/csv")
 
 footer()
