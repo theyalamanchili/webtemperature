@@ -39,8 +39,7 @@ def login():
         }
         if creds.get(user) == pwd:
             st.session_state.logged_in = True
-            if hasattr(st, 'experimental_rerun'):
-                st.experimental_rerun()
+            st.experimental_rerun()
         else:
             st.error("Invalid username or password.")
 
@@ -116,51 +115,49 @@ with col2:
     if st.button("Read Me"):
         st.session_state.show_modal = True
 
-# Read Me modal
+# Read Me expander as modal substitute
 if st.session_state.get('show_modal', False):
-    with st.modal("User Guide"):
-        st.markdown("""
+    exp = st.expander("📖 User Guide", expanded=True)
+    exp.markdown(
+        """
 **Overview:**
-This tool calculates steady-state temperature in a moving web under different cooling/heating setups using analytical 2D and 1D models.
+This tool calculates steady-state temperature in a moving web between rollers using analytical 2D and 1D models.
 
-**Inputs (all values should be realistic for your process):**
-- **Case:** Select cooling/heating scenario.
-- **Material:** Predefined (default PET) or enter custom k [W/(m·K)], rho [kg/m3], c [J/(kg·K)].
-- **Web Speed:** v [m/s]
-- **Inlet Temp:** T0 [degC]
-- **Ambient Temp:** Tinf [degC]
-- **Convective HTC:** h [W/(m2·K)]
-- **Thickness:** t [m]
-- **Width:** W [m]
-- **Span Length:** L [m]
-- **Series Terms:** N (eigenmodes for 2D solution)
+**Inputs:**
+- **Case:** Cooling/heating scenario.
+- **Material:** Predefined (default PET) or custom k [W/(m·K)], rho [kg/m³], c [J/(kg·K)].
+- **Web speed v [m/s]**
+- **Inlet temp T0 [°C]**
+- **Ambient temp Tinf [°C]**
+- **Convective HTC h [W/(m²·K)]**
+- **Thickness t [m]**
+- **Width W [m]**
+- **Span length L [m]**
+- **Series terms N** (eigenmodes)
 
 **Outputs:**
-- **2D Contour:** X-axis = span position (m), Y-axis = through-thickness (m).
-- **Profiles:** Line plots vs span location:
-  - *Average:* Mean through-thickness temperature from 2D.
-  - *Mid-plane:* y=0 temperature.
-  - *Top/Bottom:* y=±t/2 surface temperatures.
-  - *1D model:* Lumped approximation.
-- **Differences:**
-  - *Mid-Top:* Mid-plane minus top surface.
-  - *Avg-1D:* 2D average minus 1D solution.
-- **Dimensionless Groups:** Biot = h·t/2/k, Péclet = v·L/(k/(rho·c)).
-- **CSV download** of full temperature field.
+- **2D Contour** — X = span position (m), Y = through-thickness (m).
+- **Profiles** vs span:
+  - *Average* (2D mean)
+  - *Mid-plane* (y=0)
+  - *Top/Bottom* (y=±t/2)
+  - *1D model*
+- **Differences**:
+  - Mid-plane – top surface
+  - 2D average – 1D
+- **Biot & Péclet** numbers
+- **CSV download** of full field
 
-**Notes & Disclaimer:**
-- Assumes constant material properties, steady-state.
-- Truncation error depends on N; increase for accuracy.
-- Validate results experimentally.
+**Disclaimer:**
+Assumes constant properties, steady-state, and series truncation; validate experimentally.
 
-[Close]
-""")
-        if st.button("Close Read Me"):
-            st.session_state.show_modal = False
+"""
+    )
+    if exp.button("Close Guide"):
+        st.session_state.show_modal = False
 
 # Sidebar: Process setup
 st.sidebar.header("Process Setup")
-# Boundary case
 case = st.sidebar.selectbox("Case:", [
     "Free span convective cooling",
     "Web on heated/cooled roller",
@@ -176,22 +173,22 @@ if mat != 'Custom':
     st.sidebar.write(f"k={k}, rho={rho}, c={c}")
 else:
     k   = st.sidebar.number_input("Thermal conductivity k [W/(m·K)]", 0.1, 500.0, 0.2)
-    rho = st.sidebar.number_input("Density rho [kg/m3]", 100, 20000, 1390)
+    rho = st.sidebar.number_input("Density rho [kg/m³]", 100, 20000, 1390)
     c   = st.sidebar.number_input("Specific heat c [J/(kg·K)]", 100, 5000, 1400)
 
 # Process parameters
 st.sidebar.subheader("Process Parameters")
-v    = st.sidebar.number_input("Web speed v [m/s]", 0.01, 10.0, 1.6)
-T0   = st.sidebar.number_input("Inlet temp T0 [degC]", -50.0, 500.0, 200.0)
-Tinf = st.sidebar.number_input("Ambient temp Tinf [degC]", -50.0, 200.0, 25.0)
-h    = st.sidebar.number_input("Convective HTC h [W/(m2·K)]", 1.0, 10000.0, 100.0)
-t    = st.sidebar.number_input("Thickness t [m]", 1e-6, 1e-2, 0.001, step=1e-6, format="%.6f")
-W    = st.sidebar.number_input("Width W [m]", 0.01, 5.0, 1.0)
-L    = st.sidebar.number_input("Span length Let's L [m]", 0.1, 50.0, 10.0)
-N    = st.sidebar.slider("Series terms N", 5, 50, 20)
+v    = st.sidebar.number_input("Web speed (v) [m/s]", 0.01, 10.0, 1.6)
+T0   = st.sidebar.number_input("Inlet temp (T0) [°C]", -50.0, 500.0, 200.0)
+Tinf = st.sidebar.number_input("Ambient temp (T∞) [°C]", -50.0, 200.0, 25.0)
+h    = st.sidebar.number_input("Convective HTC (h) [W/(m²·K)]", 1.0, 10000.0, 100.0)
+t    = st.sidebar.number_input("Thickness (t) [m]", 1e-6, 1e-2, 0.001, step=1e-6, format="%.6f")
+W    = st.sidebar.number_input("Width (W) [m]", 0.01, 5.0, 1.0)
+L    = st.sidebar.number_input("Span length (L) [m]", 0.1, 50.0, 10.0)
+N    = st.sidebar.slider("Series terms (N)", 5, 50, 20)
 
-# Compute button
-if st.button("Compute"):  
+# Compute
+if st.button("Compute"):
     if case == "Free span convective cooling":
         x, y, X, Yg, T2 = solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N)
         T1            = solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x)
@@ -209,10 +206,9 @@ if st.session_state.get('ready', False):
     Pe_num = v * L / (k / (rho * c))
 
     st.subheader("2D Temperature Contour")
-    st.markdown("X: span position (m), Y: through-thickness (m)")
+    st.markdown("**X:** span position (m), **Y:** through-thickness (m)")
     show = st.checkbox("Show contour lines")
-    fig = go.Figure(go.Contour(z=T2, x=x, y=y, ncontours=60,
-                               contours=dict(showlines=show)))
+    fig = go.Figure(go.Contour(z=T2, x=x, y=y, ncontours=60, contours=dict(showlines=show)))
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown(
@@ -221,15 +217,15 @@ if st.session_state.get('ready', False):
     )
 
     st.subheader("Temperature Profiles vs Span")
-    st.markdown("X-axis: span (m), Y-axis: temperature (degC)")
-    options = {
+    st.markdown("X-axis: span (m), Y-axis: temperature (°C)")
+    profiles = {
         'Average through-thickness': T2.mean(axis=0),
         'Mid-plane (y=0)':            T2[np.argmin(np.abs(y))],
         'Top surface (y=+t/2)':       T2[np.argmin(np.abs(y - t/2))],
         'Bottom surface (y=-t/2)':    T2[np.argmin(np.abs(y + t/2))],
         '1D model':                   T1
     }
-    for label, data in options.items():
+    for label, data in profiles.items():
         if st.checkbox(label):
             fig2 = go.Figure(go.Scatter(x=x, y=data, mode='lines+markers', name=label))
             st.plotly_chart(fig2, use_container_width=True)
@@ -237,11 +233,11 @@ if st.session_state.get('ready', False):
     st.subheader("Temperature Differences vs Span")
     st.markdown("Differences between selected profiles")
     if st.checkbox("Mid-plane minus Top surface"):
-        delta = options['Mid-plane (y=0)'] - options['Top surface (y=+t/2)']
+        delta = profiles['Mid-plane (y=0)'] - profiles['Top surface (y=+t/2)']
         fig3 = go.Figure(go.Scatter(x=x, y=delta, mode='lines', name='Mid-Top'))
         st.plotly_chart(fig3, use_container_width=True)
     if st.checkbox("Average minus 1D model"):
-        delta = options['Average through-thickness'] - options['1D model']
+        delta = profiles['Average through-thickness'] - profiles['1D model']
         fig4 = go.Figure(go.Scatter(x=x, y=delta, mode='lines', name='Avg-1D'))
         st.plotly_chart(fig4, use_container_width=True)
 
