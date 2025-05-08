@@ -35,6 +35,15 @@ def login():
         else:
             st.error("Invalid username or password.")
 
+    if creds.get(user) == pwd:
+        st.session_state.logged_in = True
+        # try to re‐run the script immediately; if not available, just return
+        if hasattr(st, "experimental_rerun"):
+            st.experimental_rerun()
+        else:
+            return
+
+
 # -----------------------------------------------
 # Footer
 # -----------------------------------------------
