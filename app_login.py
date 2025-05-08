@@ -64,7 +64,6 @@ def footer():
     x = np.linspace(0, L, 600)
     y = np.linspace(-Y, Y, 300)
     X, Yg = np.meshgrid(x, y)
-@@ -119,10 +109,48 @@
     login()
     st.stop()
 
