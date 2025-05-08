@@ -109,9 +109,9 @@ Defines how the web exchanges heat (e.g., free span convective cooling, roller c
 - Specific heat c [J/kg·K]
 
 **Web Transport Inputs:**  
-- **Inlet Temperature T0 [°C]**: Upstream roller or inlet condition.
-- **Ambient Temperature T∞ [°C]**: Surrounding fluid.
-- **Convective HTC h [W/m²·K]**: Surface heat transfer.
+- **Inlet Temperature T0 [°C]**: Upstream roller or inlet condition.  
+- **Ambient Temperature T∞ [°C]**: Surrounding fluid.  
+- **Convective HTC h [W/m²·K]**: Surface heat transfer.  
 
 **Transport & Process Parameters:**  
 - **Speed v [m/s]**  
@@ -159,11 +159,11 @@ materials = list(matlib.keys())
 mat = st.sidebar.selectbox("Material:",materials,index=0)
 if mat!='Custom':
     k,rho,c = matlib[mat]
-    st.sidebar.markdown(f"""
-- k = {k} W/m·K  
-- ρ = {rho} kg/m³  
-- c = {c} J/kg·K
-""")
+    st.sidebar.markdown(
+        f"- k = {k} W/m·K  \n"
+        f"- ρ = {rho} kg/m³  \n"
+        f"- c = {c} J/kg·K"
+    )
 else:
     k = st.sidebar.number_input("k [W/m·K]",0.1,500.0,0.2)
     rho = st.sidebar.number_input("ρ [kg/m³]",100,20000,1390)
@@ -198,14 +198,13 @@ if st.session_state.get('ready',False):
     Pe = v*L/(k/(rho*c))
     st.subheader("2D Temperature Contour")
     st.markdown("**X:** span (m), **Y:** thickness (m)")
-    if st.checkbox("Show contour lines"):
-        contours=dict(showlines=True)
-    else:
-        contours=dict(showlines=False)
+    contours = dict(showlines=st.checkbox("Show contour lines"))
     fig=go.Figure(go.Contour(z=T2,x=x,y=y,ncontours=60,contours=contours))
     st.plotly_chart(fig,use_container_width=True)
-    st.markdown(f"**Biot:** {Bi:.2f}  
-**Péclet:** {Pe:.1f}")
+    st.markdown(
+        f"**Biot:** {Bi:.2f}\n"
+        f"**Péclet:** {Pe:.1f}"
+    )
 
     st.subheader("Temperature Profiles vs Span")
     profiles={
