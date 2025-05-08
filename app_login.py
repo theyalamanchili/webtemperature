@@ -137,17 +137,17 @@ bc = st.sidebar.selectbox(
 )
 
 if bc == "Free span convective cooling":
-    st.image("BC2.png", caption="Free span convective cooling", use_column_width=True)
+    st.image("BC2.png", caption="Free span convective cooling", use_container_width=True)
     st.sidebar.markdown(
         "_Free span with convective cooling on both surfaces. Enter thickness, speed, and h._"
     )
 elif bc == "Web over heated/cooled roller":
-    st.image("BC1.png", caption="Web over heated/cooled roller", use_column_width=True)
+    st.image("BC1.png", caption="Web over heated/cooled roller", use_container_width=True)
     st.sidebar.markdown(
         "_Web contacting a roller at fixed temperature. Inputs: roller T and contact length._"
     )
 else:
-    st.image("BC3.png", caption="Web in heating/cooling zone", use_column_width=True)
+    st.image("BC3.png", caption="Web in heating/cooling zone", use_container_width=True)
     st.sidebar.markdown(
         "_Web traveling through a heating/cooling zone. Inputs: zone T and length._"
     )
