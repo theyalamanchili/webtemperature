@@ -102,61 +102,77 @@ st.title("Web Temperature Distribution Simulator")
 
 # Read-Me / User Guide
 with st.expander("📖 Read Me / User Guide", expanded=False):
-    st.markdown(
-        """
-**Overview and Background**  
-In roll‑to‑roll (R2R) manufacturing, precise thermal control of moving webs is essential to prevent defects and maintain product quality :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}. This tool provides analytical solutions for steady‑state temperature fields using:
+    st.markdown("""
+**Overview & Background**  
+In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones (e.g. ovens, cooling spans, rollers). Predicting its steady‑state temperature field is crucial for:
+- Avoiding thermal defects (curl, wrinkles, web‑elongation)  
+- Ensuring process uniformity  
 
-- **2D convection–diffusion model** (across thickness _y_ and along span _x_):  
-  $$\frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} - 2\beta\frac{\partial T}{\partial x} = 0,\quad \beta=\frac{\rho\,c\,v}{2\,k}.$$  
-- **1D lumped model** (along span only, uniform through‑thickness):  
-  $$\frac{d^2 T}{dx^2} - 2\beta\frac{dT}{dx} - m^2\,(T - T_\infty)=0,\quad m^2=\frac{h\,P}{k\,A}.$$  
+This app solves two analytical models under *steady‑state* conditions:
 
-**Key Dimensionless Numbers**  
-- _Biot number_, **Bi** = \(h\,Y\)/\(k\): surface convection / internal conduction.  
-- _Péclet number_, **Pe** = \(v\,L\)/\(\alpha\), where \(\alpha = k/(\rho\,c)\): advection / conduction.
+1. **2D convection–diffusion** (across thickness _y_ and along span _x_):  
+   
+   $$ \frac{\partial^2 T}{\partial x^2} \;+\; \frac{\partial^2 T}{\partial y^2} \;-\; 2\,\beta\,\frac{\partial T}{\partial x} \;=\; 0, 
+   \quad \beta=\frac{\rho\,c\,v}{2\,k}. $$
 
-**Input Variables**  
-| Description                 | Notation           | Units                           |
-|-----------------------------|--------------------|---------------------------------|
-| Thermal conductivity        | _k_                | W·m⁻¹·K⁻¹                       |
-| Density                     | _ρ_                | kg·m⁻³                          |
-| Specific heat capacity      | _c_                | J·kg⁻¹·K⁻¹                      |
-| Web speed                   | _v_                | m·s⁻¹                           |
-| Inlet temperature           | _T₀_               | °C                              |
-| Ambient temperature         | _T∞_               | °C                              |
-| Heat transfer coefficient   | _h_                | W·m⁻²·K⁻¹                       |
-| Thickness (total)           | _t_                | m                               |
-| Width                       | _W_                | m                               |
-| Span length                 | _L_                | m                               |
-| Eigenmodes (series terms)   | _N_                | —                               |
+2. **1D lumped‑capacitance** (uniform through‑thickness approximation):  
+   
+   $$ \frac{d^2 T}{dx^2}
+      \;-\;
+      2\,\beta\,\frac{dT}{dx}
+      \;-\;
+      m^2\,(T - T_\infty)
+      = 0,
+   \quad m^2=\frac{h\,P}{k\,A}. $$
 
-**Computed Outputs & Definitions**  
-1. **2D Temperature Contour**: _T(x,y)_ over span vs. thickness; “Turbo” colorbar.  
-2. **Temperature Profiles vs. Span** (toggle via checkboxes):  
-   - **Centerline**, \(T_c(x)=T(x,y=0)\)  
-   - **Top surface**, \(T_{\rm top}(x)=T(x,y=+t/2)\)  
-   - **Bottom surface**, \(T_{\rm bot}(x)=T(x,y=-t/2)\)  
-   - **Thickness‑average**, \(\displaystyle T_{\rm avg}(x)=\frac1t\int_{-t/2}^{+t/2}T(x,y)\,dy\)  
-   - **1D lumped-model**, \(T_{1D}(x)\) from the 1D solution.
+**Assumptions**  
+- Material properties (_k_, _ρ_, _c_) constant  
+- Steady‑state (no time dependence)  
+- Idealized boundary conditions (convective cooling/roller contact)  
+- Series truncation error ∝ 1/_N_ (increase _N_ for improved accuracy)
 
-3. **Temperature Differences vs. Span** (toggle):  
-   - \(\Delta T_{c\!-\!\rm top}(x)=T_c(x)-T_{\rm top}(x)\)  
-   - \(\Delta T_{\rm avg\!-\!1D}(x)=T_{\rm avg}(x)-T_{1D}(x)\)
-
-4. **Dimensionless Display**: shows calculated **Bi** and **Pe** below the contour.  
-5. **Downloads**: CSVs for contour, profiles, and differences.
+---
 
 **How to Use**  
-1. Fill inputs in sidebar sections 1–5.  
-2. Click **Compute**.  
-3. Use checkboxes to select which curves appear.  
-4. Click the appropriate **Download** button below each plot.
+1. **Select Web Transport Scenario** (span cooling vs. roller contact vs. heating zone).  
+2. **Set Material Properties** (choose library entry or custom _k_, _ρ_, _c_).  
+3. **Enter Temperatures & Convection** (_T₀_, _T∞_, _h_).  
+4. **Fill Transport & Process Parameters** (_v_, _t_, _W_, _L_).  
+5. **Adjust Default Parameters** (number of eigenmodes _N_).  
+6. Click **Compute**.  
+7. Use the **checkboxes** under each plot to toggle curves.  
+8. Download CSVs of the contour, profiles, or difference data.
 
-**Citation:**  
-Yalamanchili, A.V.; Pagilla, P.R.; (2025). Modeling steady-state temperature distribution in moving webs in roll-to-roll manufacturing
-"""
-    )
+**Computed Outputs**  
+
+1. **2D Temperature Contour**  
+   - X‑axis = span position (*x*) in m  
+   - Y‑axis = through‑thickness (*y*) in m  
+   - Color = local temperature *T(x,y)*  
+   - Uses the “Turbo” color scale  
+
+2. **Temperature Profiles vs. Span** (select via checkboxes):  
+   - **Centerline:** \(T_c(x)=T(x,y=0)\)  
+   - **Top surface:** \(T_{\rm top}(x)=T(x,y=+t/2)\)  
+   - **Bottom surface:** \(T_{\rm bot}(x)=T(x,y=-t/2)\)  
+   - **Thickness‑average:** \(\displaystyle T_{\rm avg}(x)=\frac{1}{t}\int_{-t/2}^{t/2}T(x,y)\,dy\)  
+   - **1D Lumped Model:** \(T_{1D}(x)\)  
+
+3. **Temperature Differences vs. Span** (select via checkboxes):  
+   - \(\Delta T_{c-\rm top}(x)=T_c(x)-T_{\rm top}(x)\)  
+   - \(\Delta T_{\rm avg-1D}(x)=T_{\rm avg}(x)-T_{1D}(x)\)  
+
+4. **CSV Downloads**  
+   - **Contour CSV:** full (x,y,T) field  
+   - **Profiles CSV:** span vs. selected profiles  
+   - **Differences CSV:** span vs. selected differences  
+
+---
+
+**Citation**  
+Yalamanchili, A.V.; Pagilla, P.R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.  
+    """, unsafe_allow_html=False)
+
 
 # Sidebar Sections
 # 1. Web Transport Scenario
