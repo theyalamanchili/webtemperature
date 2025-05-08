@@ -56,13 +56,12 @@ def solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N):
 
     def fz(z_val): return np.tan(z_val) - Bi / z_val
 
-    eps = 1e-6
     z = np.zeros(N)
-    z[0] = fsolve(fz, [eps, np.pi/2 - eps])[0]
+    z[0] = fsolve(fz, [1e-6, np.pi/2 - 1e-6])[0]
     odds = np.arange(1, 2*N, 2)
     for i in range(1, N):
-        lo = odds[i-1] * np.pi/2 + eps
-        hi = lo + np.pi - 2*eps
+        lo = odds[i-1] * np.pi/2 + 1e-6
+        hi = lo + np.pi - 2e-6
         z[i] = fsolve(fz, [lo, hi])[0]
 
     lam = z / half_thickness
@@ -91,7 +90,7 @@ def solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x):
 # -----------------------------------------------
 add_styles()
 
-# Init login state
+# Authentication
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if not st.session_state.logged_in:
@@ -100,69 +99,60 @@ if not st.session_state.logged_in:
 
 st.title("Web Temperature Distribution Simulator")
 
-# Read-Me / User Guide
+# Read-Me
 with st.expander("📖 Read Me / User Guide", expanded=False):
     st.markdown(
         """
-**Description:**  
-Computes steady-state temperature distributions in a moving web using 2D and 1D analytical models.
-
-**Usage:**  
-1. Select inputs in sidebar.  
-2. Click **Compute**.  
-3. Download data/plots.  
-
-**Assumptions:**  
-- Constant properties, steady-state.  
-- Series truncation; increase N for accuracy.
-
-**Citation:**  
-Yalamanchili et al. (2024). Modeling Steady-State Temperature Distribution...
+**Description:** Computes steady-state web temperature in 2D/1D.  
+**Assumptions:** Constant properties, steady-state, series truncation.  
+**Citation:** Yalamanchili et al. (2024)
 """
     )
 
-# Sidebar Sections
+# Sidebar Inputs
 st.sidebar.header("1. Web Transport Scenario")
 scenario = st.sidebar.selectbox("Scenario:", [
     "Free span convective cooling",
     "Web on heated/cooled roller",
     "Web in heating/cooling zone"
 ])
-if scenario == "Free span convective cooling": st.sidebar.image("BC2.png", use_container_width=True)
-elif scenario == "Web on heated/cooled roller": st.sidebar.image("BC1.png", use_container_width=True)
-else: st.sidebar.image("BC3.png", use_container_width=True)
+if scenario == "Free span convective cooling":
+    st.sidebar.image("BC2.png", use_container_width=True)
+elif scenario == "Web on heated/cooled roller":
+    st.sidebar.image("BC1.png", use_container_width=True)
+else:
+    st.sidebar.image("BC3.png", use_container_width=True)
 
-st.sidebar.header("2. Material Properties")
+st.sidebar.header("2. Material Properties (k, ρ, c)")
 matlib = {'PET':{'k':0.2,'rho':1390,'c':1400},'Aluminum':{'k':237,'rho':2700,'c':897},'Copper':{'k':401,'rho':8960,'c':385}}
-materials = list(matlib.keys())+['Custom']
-mat = st.sidebar.selectbox("Material:", materials, index=0)
+mats = list(matlib.keys())+['Custom']
+mat = st.sidebar.selectbox("Material:", mats, index=0)
 if mat!='Custom':
     p = matlib[mat]
-    st.sidebar.markdown(
-        f"- k: **{p['k']}** W/(m·K)  \n"
-        f"- rho: **{p['rho']}** kg/m³  \n"
-        f"- c: **{p['c']}** J/(kg·K)"
-    )
+    st.sidebar.write(f"k = {p['k']} W·m⁻¹·K⁻¹")
+    st.sidebar.write(f"ρ = {p['rho']} kg·m⁻³")
+    st.sidebar.write(f"c = {p['c']} J·kg⁻¹·K⁻¹")
     k,rho,c = p['k'],p['rho'],p['c']
 else:
-    k   = st.sidebar.number_input("k [W/(m·K)]",0.1,500.0,0.2)
-    rho = st.sidebar.number_input("rho [kg/m³]",100,20000,1390)
-    c   = st.sidebar.number_input("c [J/(kg·K)]",100,5000,1400)
+    k   = st.sidebar.number_input("k (thermal conductivity) [W·m⁻¹·K⁻¹]",0.1,500.0,0.2)
+    rho = st.sidebar.number_input("ρ (density) [kg·m⁻³]",100,20000,1390)
+    c   = st.sidebar.number_input("c (specific heat) [J·kg⁻¹·K⁻¹]",100,5000,1400)
 
 st.sidebar.header("3. Temperatures & Convection")
-T0   = st.sidebar.number_input("Inlet T₀ [°C]", -50.0, 500.0, 200.0)
-Tinf = st.sidebar.number_input("Ambient T∞ [°C]", -50.0, 200.0, 25.0)
-h    = st.sidebar.number_input("h [W/(m²·K)]", 1.0, 10000.0, 100.0)
+T0   = st.sidebar.number_input("T₀ (inlet temp) [°C]",-50.0,500.0,200.0)
+Tinf = st.sidebar.number_input("T∞ (ambient temp) [°C]",-50.0,200.0,25.0)
+h    = st.sidebar.number_input("h (heat transfer) [W·m⁻²·K⁻¹]",1.0,10000.0,100.0)
 
-st.sidebar.header("4. Transport & Process Parameters")
-v = st.sidebar.number_input("v [m/s]", 0.01, 10.0, 1.6)
-t = st.sidebar.number_input("t [m]", 1e-6, 1e-2, 0.001)
-W = st.sidebar.number_input("W [m]", 0.01, 5.0, 1.0)
-L = st.sidebar.number_input("L [m]", 0.1, 50.0, 10.0)
+st.sidebar.header("4. Transport & Process Params")
+v = st.sidebar.number_input("v (web speed) [m·s⁻¹]",0.01,10.0,1.6)
+t = st.sidebar.number_input("t (thickness) [m]",1e-6,1e-2,0.001)
+W = st.sidebar.number_input("W (width) [m]",0.01,5.0,1.0)
+L = st.sidebar.number_input("L (span length) [m]",0.1,50.0,10.0)
 
-st.sidebar.header("5. Default Parameters")
-st.sidebar.markdown("# eigenmodes for 2D solution; increase for accuracy vs compute time.")
-N = st.sidebar.slider("N",5,50,20)
+# Collapsible Default Params
+with st.sidebar.expander("5. Default Parameters", expanded=False):
+    st.write("N: # eigenmodes for 2D; increase for accuracy vs. compute time.")
+    N = st.slider("N (series terms)",5,50,20)
 
 # Compute
 if st.sidebar.button("Compute"):
@@ -171,66 +161,71 @@ if st.sidebar.button("Compute"):
     st.session_state.update(x=x,y=y,X=X,Yg=Yg,T2=T2,T1=T1)
     st.session_state.ready=True
 
-# Display results
+# Display
 if st.session_state.get('ready'):
     x,y,X,Yg,T2,T1 = (st.session_state[var] for var in ['x','y','X','Yg','T2','T1'])
-    Yh=t/2; Bi=h*Yh/k; Pe=v*L/(k/(rho*c))
+    Yh = t/2
+    Bi = h*Yh/k
+    Pe = v*L/(k/(rho*c))
 
     st.subheader("2D Temperature Contour")
-    st.markdown("**X-axis:** span (m) &nbsp; **Y-axis:** thickness (m)")
+    st.markdown("**X:** span (m) &nbsp; **Y:** thickness (m)")
     show = st.checkbox("Show contour lines & labels")
-    fig = go.Figure(go.Contour(z=T2,x=x,y=y,ncontours=60,contours=dict(showlines=show,showlabels=show)))
+    fig = go.Figure(go.Contour(
+        z=T2, x=x, y=y,
+        colorscale='Turbo', colorbar=dict(title='T (°C)'),
+        ncontours=60, contours=dict(showlines=show, showlabels=show)
+    ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # Download contour data
-    df_contour = pd.DataFrame({'x':X.flatten(),'y':Yg.flatten(),'T':T2.flatten()})
-    buf1=BytesIO();df_contour.to_csv(buf1,index=False);buf1.seek(0)
-    st.download_button("Download Contour CSV",buf1,"contour.csv","text/csv")
+    # Contour data download
+    dfc = pd.DataFrame({'x':X.flatten(),'y':Yg.flatten(),'T':T2.flatten()})
+    b1=BytesIO();dfc.to_csv(b1,index=False);b1.seek(0)
+    st.download_button("Download Contour CSV",b1,"contour.csv","text/csv")
 
-    st.markdown(f"**Biot:** {Bi:.2f} &nbsp; **Péclet:** {Pe:.1f}")
+    st.markdown(f"**Biot (Bi):** {Bi:.2f} &nbsp; **Péclet (Pe):** {Pe:.1f}")
 
-    # Profile selection
+    # Profiles
     st.subheader("Temperature Profiles vs Span")
-    sel_avg  = st.checkbox("2D average", value=True)
-    sel_mid  = st.checkbox("Mid-plane", value=True)
-    sel_top  = st.checkbox("Top surface", value=True)
-    sel_bot  = st.checkbox("Bottom surface", value=True)
-    sel_1d   = st.checkbox("1D model", value=True)
+    sel_avg = st.checkbox("2D avg", True)
+    sel_mid = st.checkbox("Mid-plane", True)
+    sel_top = st.checkbox("Top surface", True)
+    sel_bot = st.checkbox("Bottom surface", True)
+    sel_1d  = st.checkbox("1D model", True)
+    figp = go.Figure()
+    if sel_avg: figp.add_trace(go.Scatter(x=x,y=T2.mean(axis=0),mode='lines',name='2D avg'))
+    if sel_mid: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y))],mode='lines',name='Mid-plane'))
+    if sel_top: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Top surface'))
+    if sel_bot: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y+Yh))],mode='lines',name='Bottom surface'))
+    if sel_1d:  figp.add_trace(go.Scatter(x=x,y=T1,mode='lines',name='1D model',line=dict(dash='dash')))
+    figp.update_layout(xaxis_title='Span (m)',yaxis_title='Temp (°C)',legend_title='Profiles')
+    st.plotly_chart(figp, use_container_width=True)
 
-    fig_p = go.Figure()
-    if sel_avg: fig_p.add_trace(go.Scatter(x=x,y=T2.mean(axis=0),mode='lines',name='2D avg'))
-    if sel_mid: fig_p.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y))],mode='lines',name='Mid-plane'))
-    if sel_top: fig_p.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Top surface'))
-    if sel_bot: fig_p.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y+Yh))],mode='lines',name='Bottom surface'))
-    if sel_1d:  fig_p.add_trace(go.Scatter(x=x,y=T1,mode='lines',name='1D model',line=dict(dash='dash')))
-    fig_p.update_layout(xaxis_title='Span (m)',yaxis_title='Temp (°C)',legend_title='Profiles')
-    st.plotly_chart(fig_p, use_container_width=True)
+    # Profiles data download
+    dp = pd.DataFrame({'x': x})
+    if sel_avg: dp['avg'] = T2.mean(axis=0)
+    if sel_mid: dp['mid'] = T2[np.argmin(np.abs(y))]
+    if sel_top: dp['top'] = T2[np.argmin(np.abs(y-Yh))]
+    if sel_bot: dp['bot'] = T2[np.argmin(np.abs(y+Yh))]
+    if sel_1d:  dp['one_d'] = T1
+    b2=BytesIO();dp.to_csv(b2,index=False);b2.seek(0)
+    st.download_button("Download Profiles CSV",b2,"profiles.csv","text/csv")
 
-    # Download profile data
-    profile_data = pd.DataFrame({'x': x})
-    if sel_avg: profile_data['avg'] = T2.mean(axis=0)
-    if sel_mid: profile_data['mid'] = T2[np.argmin(np.abs(y))]
-    if sel_top: profile_data['top'] = T2[np.argmin(np.abs(y-Yh))]
-    if sel_bot: profile_data['bot'] = T2[np.argmin(np.abs(y+Yh))]
-    if sel_1d:  profile_data['1d'] = T1
-    buf2=BytesIO();profile_data.to_csv(buf2,index=False);buf2.seek(0)
-    st.download_button("Download Profiles CSV",buf2,"profiles.csv","text/csv")
-
-    # Differences selection
+    # Differences
     st.subheader("Temperature Differences vs Span")
-    sel_mt  = st.checkbox("Mid-plane – Top surface", value=True)
-    sel_a1d = st.checkbox("2D avg – 1D model", value=True)
-    fig_d = go.Figure()
-    if sel_mt:  fig_d.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y))]-T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Mid-Top'))
-    if sel_a1d:fig_d.add_trace(go.Scatter(x=x,y=T2.mean(axis=0)-T1,mode='lines',name='Avg-1D'))
-    fig_d.update_layout(xaxis_title='Span (m)',yaxis_title='ΔTemp (°C)',legend_title='Diffs')
-    st.plotly_chart(fig_d, use_container_width=True)
+    sel_mt = st.checkbox("Mid-plane − Top surface", True)
+    sel_a1d= st.checkbox("2D avg − 1D model", True)
+    fd = go.Figure()
+    if sel_mt:  fd.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y))]-T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Mid-Top'))
+    if sel_a1d:fd.add_trace(go.Scatter(x=x,y=T2.mean(axis=0)-T1,mode='lines',name='Avg-1D'))
+    fd.update_layout(xaxis_title='Span (m)',yaxis_title='ΔT (°C)',legend_title='Differences')
+    st.plotly_chart(fd, use_container_width=True)
 
-    # Download differences data
-    diff_data = pd.DataFrame({'x': x})
-    if sel_mt:  diff_data['mid_top'] = T2[np.argmin(np.abs(y))] - T2[np.argmin(np.abs(y-Yh))]
-    if sel_a1d:diff_data['avg_1d'] = T2.mean(axis=0) - T1
-    buf3=BytesIO();diff_data.to_csv(buf3,index=False);buf3.seek(0)
-    st.download_button("Download Differences CSV",buf3,"differences.csv","text/csv")
+    # Differences data download
+    dd = pd.DataFrame({'x': x})
+    if sel_mt:  dd['mid_top'] = T2[np.argmin(np.abs(y))] - T2[np.argmin(np.abs(y-Yh))]
+    if sel_a1d:dd['avg_1d']  = T2.mean(axis=0) - T1
+    b3=BytesIO();dd.to_csv(b3,index=False);b3.seek(0)
+    st.download_button("Download Differences CSV",b3,"differences.csv","text/csv")
 
 footer()
