@@ -49,7 +49,7 @@ def login():
 def footer():
     st.markdown(
         """
-        <div class='footer'>Version α 0.1 | © 2025 Texas A&amp;M University</div>
+        <div class='footer'>Version α 0.1 | © 2025 Texas A&amp;M University</div>
         """, unsafe_allow_html=True)
 
 # -----------------------------------------------
@@ -229,8 +229,8 @@ if st.session_state.get('ready', False):
     st.plotly_chart(fig, use_container_width=True)
 
     # Biot & Peclet
-    st.markdown(f"**Biot number (Bi):** {Bi_num:.2f}  
-**Péclet number (Pe):** {Pe_num:.1f}")
+    st.markdown(f"""**Biot number (Bi):** {Bi_num:.2f}  
+**Péclet number (Pe):** {Pe_num:.1f}"""):** {Pe_num:.1f}")
     st.markdown(
         """
         Biot indicates surface vs conduction; low Bi means conduction-dominated cooling.  
