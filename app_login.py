@@ -2,253 +2,230 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from io import BytesIO
 from scipy.optimize import fsolve
+import plotly.graph_objects as go
+
 # -----------------------------------------------
-# Background Styling with CSS
+# Background Styling
 # -----------------------------------------------
-def add_background_styles():
-    """Add background color styling using CSS."""
+def add_styles():
     st.markdown(
         """
         <style>
-        .stApp {
-            background-color: rgb(255, 255, 255);
-            color: black;
-        }
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            color: black;
-            font-size: large;
-        }
-         
-         label {
-            color: black !important;  /* Make labels (e.g., 'Username' and 'Password') black */
-        }
-         button {
-            color: red !important; /* Ensure button text is red */
-        }
-    
+        .stApp { background-color: #f9f9f9; color: #111; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 0.8rem; color: #555; }
         </style>
-        """,
-        unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
 
 # -----------------------------------------------
-# Login Function
+# Login
 # -----------------------------------------------
 def login():
-
-
-    # Display the logo only on the login page
-    logo_path = "MEEN_logo.png"  # Ensure the image file is in the same directory
-    logo = Image.open(logo_path)
-    st.image(logo, width=400, use_container_width="auto")  # Adjust the width as needed
-    st.title("Login")
-    # Username and password inputs
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
+    logo = Image.open("MEEN_logo.png")
+    st.image(logo, width=300)
+    st.header("Please log in to continue")
+    user = st.text_input("Username")
+    pwd = st.text_input("Password", type="password")
     if st.button("Login"):
-        # Predefined credentials
-        credentials = {
-            "Guest": "GuestPass",
-            "Aditya": "Yalamanchili",
-            "Prabhakar": "Pagilla",
-            "admin": "adminpass"
-        }
-        if username in credentials and credentials[username] == password:
+        creds = {"Guest":"GuestPass","Aditya":"Yalamanchili","Prabhakar":"Pagilla","admin":"adminpass"}
+        if creds.get(user)==pwd:
             st.session_state.logged_in = True
-            st.rerun()   # Immediately re-run to avoid double-click
+            st.experimental_rerun()
         else:
-            st.error("Invalid username or password. Please try again.")
+            st.error("Invalid username or password.")
 
 # -----------------------------------------------
 # Footer
 # -----------------------------------------------
-def display_footer():
+def footer():
     st.markdown(
         """
-        <div class="footer">
-            Version α 0.1 | © 2025 Texas A&M University
-        </div>
-        """,
-        unsafe_allow_html=True
+        <div class='footer'>Version α 0.1 | © 2025 Texas A&amp;M University</div>
+        """, unsafe_allow_html=True)
+
+# -----------------------------------------------
+# 2D / 1D Solvers
+# -----------------------------------------------
+def solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N):
+    Y = t/2
+    dT = T0 - Tinf
+    beta = rho*c*v/(2*k)
+    Bi   = h*Y/k
+    def fz(z): return np.tan(z) - Bi/z
+    eps = 1e-6
+    z = np.zeros(N)
+    z[0] = fsolve(fz,[eps, np.pi/2-eps])[0]
+    odds = np.arange(1,2*N,2)
+    for i in range(1, N):
+        lo = odds[i-1]*np.pi/2 + eps
+        hi = lo + np.pi - 2*eps
+        z[i] = fsolve(fz,[lo,hi])[0]
+    lam = z/Y
+    a   = np.array([(2*dT*np.sin(z[i]))/(z[i]+np.sin(z[i])*np.cos(z[i])) for i in range(N)])
+    # finer grid
+    x = np.linspace(0, L, 600)
+    y = np.linspace(-Y, Y, 300)
+    X, Yg = np.meshgrid(x,y)
+    Theta = sum(
+        a[i]*np.exp((beta - np.sqrt(beta**2+lam[i]**2))*X)*np.cos(lam[i]*Yg)
+        for i in range(N)
     )
+    return x,y,X,Yg,(Tinf + Theta)
+
+def solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x):
+    Y = t/2
+    dT = T0 - Tinf
+    beta = rho*c*v/(2*k)
+    A = 2*W*Y; P = 2*W + 2*Y
+    m2 = h*P/(k*A)
+    mu = beta - np.sqrt(beta**2 + m2)
+    return Tinf + dT*np.exp(mu*x)
 
 # -----------------------------------------------
-# Main Application
+# App
 # -----------------------------------------------
-if __name__ == "__main__":
-    # Apply background styling globally
-    add_background_styles()
-
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-
-    if not st.session_state.logged_in:
-        st.session_state.logged_in = login()
+add_styles()
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in=False
+if not st.session_state.logged_in:
+    login()
+else:
+    st.title("Web Temperature Distribution Simulator")
+    # BC selector & image
+    st.sidebar.header("Boundary Condition")
+    bc = st.sidebar.selectbox("Choose a case:",
+        ["Free span convective cooling","Web over heated/cooled roller","Web in heating/cooling zone"]
+    )
+    if bc=="Free span convective cooling":
+        st.image("BC1.png", caption="Free span convective cooling", use_column_width=True)
+        st.sidebar.markdown("_Cooling on both surfaces by convection._")
+    elif bc=="Web over heated/cooled roller":
+        st.image("BC3.png", caption="Web over roller", use_column_width=True)
+        st.sidebar.markdown("_Contact with roller at fixed T._")
     else:
-        def temperature_distribution(k, rho, c, v, T0, T_inf, h, Y, L, n_max):
-            """
-            Returns (X, Y_grid, T) where:
-              X, Y_grid = meshgrid of x and y
-              T         = temperature distribution (2D array)
-             
-            """
-            from scipy.optimize import fsolve
-            import numpy as np
-            
-            # Calculate beta and Bi
-            beta = rho * c * v / (2.0 * k)
-            Bi = h * Y / k
-            
-            # Define the equation f(lambda) = lambda * Y * tan(lambda * Y) - Bi
-            def f_lambda(lmbd):
-                return lmbd * Y * np.tan(lmbd * Y) - Bi
-        
-            # Find eigenvalues lambda_n
-            lambda_n = []
-            for n in range(n_max+1):
-                lambda_guess = (n + Y) * np.pi / Y
-                sol = fsolve(f_lambda, lambda_guess)
-                lambda_n.append(sol[0])
-            lambda_n = np.array(lambda_n)
-        
-            # Calculate a_n
-            a_n = np.zeros(n_max+1)
-            for i in range(0, n_max):
-                lam = lambda_n[i]
-                numerator = 2.0 * (T0 - T_inf) * np.sin(lam * Y)
-                denominator = lam * Y + np.sin(lam * Y) * np.cos(lam * Y)
-                a_n[i] = numerator / denominator
-        
-            # Create spatial domain
-            x_vals = np.linspace(0, L, 500)
-            y_vals = np.linspace(-Y, Y, 200)
-            X, Y_grid = np.meshgrid(x_vals, y_vals)
-        
-            # Calculate Theta(x, y)
-            Theta = np.zeros_like(X)
-            for i in range(0, n_max):
-                lam = lambda_n[i]
-                exponent_term = (beta - np.sqrt(beta**2 + lam**2)) * X
-                Theta += a_n[i] * np.exp(exponent_term) * np.cos(lam * Y_grid)
-        
-            # Convert Theta to actual temperature
-            T = Theta + T_inf
-        
-            return X, Y_grid, T
-
-
-        
-        st.title("Web temperature distribution simulator tool")
-
-        st.sidebar.header("Input Parameters")
-        # --- New: Boundary Condition Dropdown ---
-        bc_option = st.sidebar.selectbox(
-            "Boundary Condition",
-            [
-                "Free span convective cooling", 
-                "Web over a heated/ cooled roller", 
-                "Web in a heating/ cooling zone"
-            ]
+        st.image("BC2.png", caption="Web in zone", use_column_width=True)
+        st.sidebar.markdown("_Heating/cooling zone model._")
+    # materials
+    st.sidebar.header("Material Props")
+    matlib={ 'Al':{'k':237,'rho':2700,'c':897}, 'Cu':{'k':401,'rho':8960,'c':385}, 'PET':{'k':0.2,'rho':1390,'c':1400} }
+    mat=st.sidebar.selectbox("Material", list(matlib.keys())+['Custom'])
+    if mat!='Custom': k,rho,c=matlib[mat].values(); st.sidebar.write(f"k={k}, ρ={rho}, c={c}")
+    else:
+        k   = st.sidebar.number_input("k [W/m·K]", 0.1,500.,0.2)
+        rho = st.sidebar.number_input("ρ [kg/m³]", 100,20000,1400)
+        c   = st.sidebar.number_input("c [J/kg·K]", 100,5000,1400)
+    st.sidebar.markdown("---")
+    # process
+    st.sidebar.header("Process Params")
+    v    = st.sidebar.number_input("v [m/s]", 0.01,10.,1.6)
+    T0   = st.sidebar.number_input("T₀ [°C]", -50,500,200)
+    Tinf = st.sidebar.number_input("T∞ [°C]", -50,200,25)
+    h    = st.sidebar.number_input("h [W/m²·K]", 1,10000,100)
+    t    = st.sidebar.number_input("thickness t [m]",1e-6,1e-2,0.001,step=1e-6,format="%.6f")
+    W    = st.sidebar.number_input("Width W [m]",0.01,5.,1.0)
+    L    = st.sidebar.number_input("Span L [m]",0.1,50.,10.0)
+    N    = st.sidebar.slider("Terms N",5,50,20)
+    if st.button("Compute"):
+        if bc=="Free span convective cooling":
+            x,y,X,Yg,T2=solve_2d(k,rho,c,v,T0,Tinf,h,t,L,N)
+            T1=solve_1d(k,rho,c,v,T0,Tinf,h,t,W,x)
+            st.session_state.update(x=x,y=y,X=X,Yg=Yg,T2=T2,T1=T1)
+            st.session_state.ready=True
+        else:
+            st.warning("Solver coming soon.")
+    if st.session_state.get('ready',False):
+        x,y,X,Yg,T2,T1=(st.session_state[k] for k in ['x','y','X','Yg','T2','T1'])
+        # dimless
+        Bi_num= h*(t/2)/k
+        Pe_num= v*L/(k/(rho*c))
+        # contour
+        st.subheader("2D Contour")
+        show=st.checkbox("Show lines&labels")
+        fig=go.Figure(go.Contour(
+            z=T2,x=x,y=y,colorscale='Turbo',ncontours=60,
+            contours=dict(showlines=show,showlabels=show,labelfont=dict(size=12,color='black'))
+        ))
+        fig.update_layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',margin=dict(l=40,r=40,t=40,b=40))
+        fig.update_xaxes(showgrid=False); fig.update_yaxes(showgrid=False)
+        st.plotly_chart(fig,use_container_width=True)
+        # Bi,Pe
+        st.markdown(f"**Bi:** {Bi_num:.2f} &nbsp;&nbsp; **Pe:** {Pe_num:.1f}")
+        st.markdown(
+            """Bi: surface vs conduction. Low Bi→conduction-dominated.  
+Pé: advection vs conduction. High Pe→advection-dominated."""
         )
-        
-        k = st.sidebar.number_input("k (W/m-K)", value=0.23, format="%.5f")
-        rho = st.sidebar.number_input("rho (kg/m^3)", value=1390.0, format="%.1f")
-        c = st.sidebar.number_input("c (J/kg-K)", value=1400.0, format="%.1f")
-        v = st.sidebar.number_input("v (m/s)", value=0.1, format="%.3f")
-        T0 = st.sidebar.number_input("T0 (initial temp, °C)", value=100.0, format="%.1f")
-        T_inf = st.sidebar.number_input("T_inf (ambient temp, °C)", value=25.0, format="%.1f")
-        h = st.sidebar.number_input("h (W/m^2-K)", value=500.0, format="%.1f")
-        Y = st.sidebar.number_input("Y (half-thickness, m)", value=0.0005, format="%.5f")
-        L = st.sidebar.number_input("L (length, m)", value=1.0, format="%.2f")
-        n_max = st.sidebar.number_input("Number of eigenvalues (n_max)", value=10,
-                                        min_value=1, max_value=50, step=1)
-
-         # Display the selected boundary condition image on the main page
-        st.subheader("Selected Boundary Condition")
-        if bc_option == "Free span convective cooling":
-            st.image("BC2.png", caption="Free Span Convective Cooling", width=500,use_container_width="auto")
-        elif bc_option == "Web over a heated/ cooled roller":
-            st.image("BC1.png", caption="Web over a Heated/Cooled Roller", width=500)
-        else:  # "Web in a heating/ cooling zone"
-            st.image("BC4.png", caption="Web in a Heating/Cooling Zone", width=500)
-        
-        if st.button("Compute Temperature Distribution"):
-            with st.spinner("Computing..."):
-                X, Y_grid, T = temperature_distribution(
-                    k, rho, c, v, T0, T_inf, h, Y, L, n_max
-                )
-
-            # Plot the temperature distribution
-            st.subheader("Contour Plot of Temperature")
-            fig, ax = plt.subplots(figsize=(8,5))
-            contour = ax.contourf(X, Y_grid, T, 100, cmap='turbo', vmin=0, vmax=100)
-            plt.colorbar(contour, ax=ax, label='Temperature (°C)')
-            ax.set_title("Steady-state temperature distribution in the moving web")
-            ax.set_xlabel("x (m)")
-            ax.set_ylabel("y (m)")
-            st.pyplot(fig)
-
-            # --- 2) Temperature Profiles at y=0 (mid-plane) and y=Y (top surface) ---
-            st.subheader("Temperature Profiles at Mid-plane (y=0) and Top Surface (y=+Y)")
-
-            # Spatial arrays for plotting along x
-            x_vals = X[0, :]      # shape (500,)
-            y_vals = Y_grid[:, 0] # shape (200,)
-
-            # Find the indices for y=0 and y=+Y
-            mid_plane_idx = np.argmin(np.abs(y_vals - 0))
-            top_surface_idx = np.argmin(np.abs(y_vals - (Y)))
-
-            # Extract temperature at these two rows
-            T_mid_plane = T[mid_plane_idx, :]    # shape (500,)
-            T_top_surface = T[top_surface_idx, :] # shape (500,)
-
-            fig2, ax2 = plt.subplots(figsize=(8,4))
-            ax2.plot(x_vals, T_mid_plane, label='y=0 (Mid-plane)')
-            ax2.plot(x_vals, T_top_surface, label=f'y={Y:.6f} (Top Surface)')
-            ax2.set_xlabel("x (m)")
-            ax2.set_ylabel("Temperature (°C)")
-            ax2.set_title("Temperature Profiles")
-            ax2.legend()
-            st.pyplot(fig2)
-
-
-
-
-            
-
-            # Optional: Download temperature data
-            st.subheader("Download Temperature Data as CSV")
-            nx = X.shape[1]
-            ny = X.shape[0]
-            X_flat = X.flatten()
-            Y_flat = Y_grid.flatten()
-            T_flat = T.flatten()
-
-            df = pd.DataFrame({
-                'x_m': X_flat,
-                'y_m': Y_flat,
-                'Temperature_C': T_flat
-            })
-
-            csv_buffer = BytesIO()
-            df.to_csv(csv_buffer, index=False)
-            csv_buffer.seek(0)
-
-            st.download_button(
-                label="Download CSV",
-                data=csv_buffer,
-                file_name="temperature_distribution.csv",
-                mime="text/csv"
-            )
-
-    # Persistent footer
-    display_footer()
+        # profiles
+        st.subheader("Profiles")
+        idx_mid=np.argmin(np.abs(y))
+        idx_top=np.argmin(np.abs(y-(t/2)))
+        idx_bot=np.argmin(np.abs(y+(t/2)))
+        Tavg=T2.mean(axis=0); Tmid=T2[idx_mid]; Ttop=T2[idx_top]; Tbot=T2[idx_bot]
+        # styles
+        line_styles={
+            'avg':{'color':'blue','dash':'solid'},
+            'mid':{'color':'green','dash':'dash'},
+            'top':{'color':'red','dash':'dot'},
+            'bot':{'color':'purple','dash':'dashdot'},
+            '1d':{'color':'black','dash':'longdash'}
+        }
+        mark_sym={'avg':'circle','mid':'square','top':'triangle-up','bot':'triangle-down','1d':'x'}
+        show_avg=st.checkbox("2D ⟨T⟩")
+        show_mid=st.checkbox("Mid-plane")
+        show_top=st.checkbox("Top surface")
+        show_bot=st.checkbox("Bot surface")
+        show_1d=st.checkbox("1D soln")
+        if any([show_avg,show_mid,show_top,show_bot,show_1d]):
+            fig2=go.Figure()
+            if show_avg:
+                fig2.add_trace(go.Scatter(x=x,y=Tavg,mode='lines+markers',
+                    name='2D avg',line=line_styles['avg'],
+                    marker=dict(symbol=mark_sym['avg'],color=line_styles['avg']['color'])
+                ))
+            if show_mid:
+                fig2.add_trace(go.Scatter(x=x,y=Tmid,mode='lines+markers',
+                    name='Mid-plane',line=line_styles['mid'],
+                    marker=dict(symbol=mark_sym['mid'],color=line_styles['mid']['color'])
+                ))
+            if show_top:
+                fig2.add_trace(go.Scatter(x=x,y=Ttop,mode='lines+markers',
+                    name='Top surface',line=line_styles['top'],
+                    marker=dict(symbol=mark_sym['top'],color=line_styles['top']['color'])
+                ))
+            if show_bot:
+                fig2.add_trace(go.Scatter(x=x,y=Tbot,mode='lines+markers',
+                    name='Bot surface',line=line_styles['bot'],
+                    marker=dict(symbol=mark_sym['bot'],color=line_styles['bot']['color'])
+                ))
+            if show_1d:
+                fig2.add_trace(go.Scatter(x=x,y=T1,mode='lines+markers',
+                    name='1D soln',line=line_styles['1d'],
+                    marker=dict(symbol=mark_sym['1d'],color=line_styles['1d']['color'])
+                ))
+            fig2.update_layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',
+                xaxis_title='x (m)',yaxis_title='T (°C)',legend=dict(title='Profile'))
+            fig2.update_xaxes(showgrid=False); fig2.update_yaxes(showgrid=False)
+            st.plotly_chart(fig2,use_container_width=True)
+        # differences
+        st.subheader("Differences")
+        dm=st.checkbox("Mid−Top")
+        da=st.checkbox("avg−1D")
+        if any([dm,da]):
+            fig3=go.Figure()
+            if dm:
+                fig3.add_trace(go.Scatter(x=x,y=Tmid-Ttop,mode='lines+markers',
+                    name='Mid−Top',line=dict(color='orange',dash='dash'),marker=dict(symbol='circle',color='orange')
+                ))
+            if da:
+                fig3.add_trace(go.Scatter(x=x,y=Tavg-T1,mode='lines+markers',
+                    name='avg−1D',line=dict(color='brown',dash='dot'),marker=dict(symbol='square',color='brown')
+                ))
+            fig3.update_layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',
+                xaxis_title='x (m)',yaxis_title='ΔT (°C)',legend=dict(title='Δ Profiles'))
+            fig3.update_xaxes(showgrid=False); fig3.update_yaxes(showgrid=False)
+            st.plotly_chart(fig3,use_container_width=True)
+        # download
+        df=pd.DataFrame({'x':X.flatten(),'y':Yg.flatten(),'T':T2.flatten()})
+        buf=BytesIO();df.to_csv(buf,index=False);buf.seek(0)
+        st.download_button("Download CSV",buf,"temp_contour.csv","text/csv")
+    footer()
