@@ -147,8 +147,7 @@ This tool provides approximate analytical solutions under assumptions of constan
 
 **Citation:**
 If you use this program, please cite:
-Yalamanchili, A. V.; Sagapuram, D.; Pagilla, P. R. (2024). "Modeling Steady-State Temperature Distribution in Moving Webs in Roll-to-Roll Manufacturing." *Journal of Heat Transfer*. doi:10.1115/1.4051234
-""", unsafe_allow_html=False)
+Yalamanchili, A. V.; Pagilla, P. R. (2024). "Modeling Steady-State Temperature Distribution in Moving Webs in Roll-to-Roll Manufacturing.", unsafe_allow_html=False)
 
 # Sidebar: Boundary Condition
 st.sidebar.header("Boundary Condition")
@@ -157,14 +156,14 @@ bc = st.sidebar.selectbox(
     ["Free span convective cooling", "Web over heated/cooled roller", "Web in heating/cooling zone"]
 )
 if bc == "Free span convective cooling":
-    st.image("BC2.png", caption="Free span convective cooling", use_column_width=True)
+    st.image("BC1.png", caption="Free span convective cooling", use_column_width=True)
     st.sidebar.markdown("_Free span: convective cooling both sides._")
-elif bc == "Web over heated/cooled roller":
-    st.image("BC1.png", caption="Web over heated/cooled roller", use_column_width=True)
-    st.sidebar.markdown("_Contact with roller at fixed T._")
-else:
-    st.image("BC3.png", caption="Web in heating/cooling zone", use_column_width=True)
+elif bc == "Web in heating/cooling zone":
+    st.image("BC2.png", caption="Web in heating/cooling zone", use_column_width=True)
     st.sidebar.markdown("_Traveling through heating/cooling zone._")
+else:
+    st.image("BC3.png", caption="Web over heated/cooled roller", use_column_width=True)
+    st.sidebar.markdown("_Contact with roller at fixed T._")
 
 # Sidebar: Material Properties
 st.sidebar.header("Material Properties")
