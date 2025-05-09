@@ -106,7 +106,9 @@ with st.expander("📖 Read Me / User Guide", expanded=st.session_state.
     # ─────────────────────────────
     st.markdown(
         r"""
-This tool was developed 
+This tool was developed by Aditya Yalamanchili under the supervision of Prog. Prabhaar Pagilla at the Department of Mechanical Engineering, Texas A&M University. 
+
+---
 **Overview & Background**  
 In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones  
 (e.g. ovens, furnaces, cooling spans, heated rollers). Predicting its *steady‑state* temperature field is crucial for  
