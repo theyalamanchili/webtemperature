@@ -31,7 +31,7 @@ def footer():
 def login():
     logo = Image.open("MEEN_logo.png")
     st.image(logo, width=300)
-    st.subheader("Please log in to continue")
+    st.subsubheader("Please log in to continue")
 
     user = st.text_input("Username")
     pwd  = st.text_input("Password", type="password")
