@@ -257,7 +257,7 @@ t=st.sidebar.number_input("Thickness, *t* (m)",1e-6,1e-2,0.001)
 W=st.sidebar.number_input("Width, *W* (m)",0.01,5.0,1.0)
 L=st.sidebar.number_input("Span length, *L* (m)",0.1,50.0,10.0)
 
-with st.sidebar.expander("5. Default Params",expanded=False):
+with st.sidebar.expander("5. Default Parameters",expanded=False):
     st.markdown("Number of eigenmodes, *N* (–): increase for accuracy vs. compute time.")
     N=st.slider("Series terms, *N* (–)",5,50,20)
 
@@ -275,14 +275,26 @@ if st.session_state.get('ready'):
 
     st.subheader("2D Temperature Contour")
     st.markdown("**X-axis:** span (m) — **Y-axis:** thickness (m)")
-    show=st.checkbox("Show contour labels",value=True)
-    fig=go.Figure(go.Contour(
-        z=T2,x=x,y=y,colorscale='Turbo',ncontours=60,
-        contours=dict(showlines=True,showlabels=show,labelfont=dict(size=12)),
+# ───────── contour figure ─────────
+show = st.checkbox("Show contour lines & labels", value=True)
+
+fig = go.Figure(
+    go.Contour(
+        z=T2, x=x, y=y,
+        colorscale="Turbo", ncontours=60,
+        contours=dict(showlines=show, showlabels=show,
+                      labelfont=dict(size=12)),
         colorbar=dict(title="Temperature (°C)")
-    ))
-    fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-    st.plotly_chart(fig,use_container_width=True)
+    )
+)
+fig.update_layout(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    xaxis_title="Span location,  x  (m)",
+    yaxis_title="Transverse location within web,  y  (m)"
+)
+st.plotly_chart(fig, use_container_width=True)
+
     df_cont=pd.DataFrame({'x':X.flatten(),'y':Yg.flatten(),'T':T2.flatten()})
     buf1=BytesIO();df_cont.to_csv(buf1,index=False);buf1.seek(0)
     st.download_button("Download Contour CSV",buf1,"contour.csv","text/csv")
