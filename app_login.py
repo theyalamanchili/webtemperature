@@ -18,7 +18,7 @@ def add_styles():
                   font-size: 0.8rem; color: #555; }
         </style>
         """, unsafe_allow_html=True)
-
+    
 def footer():
     st.markdown(
         """
@@ -86,6 +86,11 @@ def solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x):
 # Main Application
 # -----------------------------------------------
 add_styles()
+# --------------------------- session flags ---------------------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "readme_expanded" not in st.session_state:
+    st.session_state.readme_expanded = True        # open at launch
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in=False
 if not st.session_state.logged_in:
@@ -94,7 +99,7 @@ if not st.session_state.logged_in:
 st.title("Web Temperature Distribution Simulator")
 
 # Read-Me / User Guide
-with st.expander("📖 Read Me / User Guide", expanded=True):
+with st.expander("📖 Read Me / User Guide", expanded=st.session_state.readme_expanded):
 
     # ─────────────────────────────
     #  Overview
@@ -278,6 +283,8 @@ with st.sidebar.expander("5. Default Parameters",expanded=False):
 
 # Compute
 if st.sidebar.button("Compute"):
+    # collapse the README for all scenarios
+    st.session_state.readme_expanded = False
     if scenario == "Free span convective cooling":
         # ---- existing solver call ----
         x, y, X, Yg, T2 = solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N)
