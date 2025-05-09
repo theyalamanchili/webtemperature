@@ -235,7 +235,7 @@ scenario_desc = {
     "Web in heating/cooling zone":
         "Section of free span that traverses a finite‑length oven / furnace / IR panel held at set temperature.",
     "Web on heated/cooled roller":
-        "Region where the moving web wraps around a temperature‑controlled roller; inner face near roll temperature, outer face sees ambient convection."
+        "Region where the moving web wraps around a temperature‑controlled roller providing a constant heat flux through conduction on one surface while the other surface is subject to covection."
 }
 st.sidebar.info(scenario_desc[scenario])
 st.sidebar.header("2. Material Properties")
@@ -272,13 +272,19 @@ with st.sidebar.expander("5. Default Parameters",expanded=False):
 
 # Compute
 if st.sidebar.button("Compute"):
-    x,y,X,Yg,T2=solve_2d(k,rho,c,v,T0,Tinf,h,t,L,N)
-    T1=solve_1d(k,rho,c,v,T0,Tinf,h,t,W,x)
-    st.session_state.update(x=x,y=y,X=X,Yg=Yg,T2=T2,T1=T1)
-    st.session_state.ready=True
+    if scenario == "Free span convective cooling":
+        # ---- existing solver call ----
+        x, y, X, Yg, T2 = solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N)
+        T1 = solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x)
+        st.session_state.update(x=x, y=y, X=X, Yg=Yg, T2=T2, T1=T1)
+        st.session_state.ready = True
+    else:
+        st.warning("Analytical solution for this scenario will be added soon. Please check back.")
+        st.session_state.ready = False
 
 # Display
-if st.session_state.get('ready'):
+# Display only for scenarios that have results
+if scenario == "Free span convective cooling" and st.session_state.get('ready'):
     x,y,X,Yg,T2,T1=(st.session_state[var] for var in ['x','y','X','Yg','T2','T1'])
     Yh=t/2; Bi=h*Yh/k; Pe=v*L/(k/(rho*c))
 
