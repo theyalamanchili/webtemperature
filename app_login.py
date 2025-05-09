@@ -97,7 +97,7 @@ with st.expander("📖 Read Me / User Guide", expanded=True):
         r"""
 **Overview & Background**  
 In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones  
-(e.g.\ ovens, cooling spans, rollers). Predicting its *steady‑state* temperature field is crucial for  
+(e.g. ovens, furnaces, cooling spans, heated rollers). Predicting its *steady‑state* temperature field is crucial for  
 avoiding thermal defects (curl, wrinkles, web‑elongation), ensuring process uniformity,  
 and improving web‑tension regulation.
 
