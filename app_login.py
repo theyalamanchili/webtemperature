@@ -187,7 +187,20 @@ m^{2} = \frac{h\,P}{k\,A}
 
 ---
 
-**Citation**
+    **Disclaimer**  
+    This tool provides approximate analytical solutions under assumptions of constant
+    properties, steady‑state behaviour, and idealised boundary conditions.
+    Results should be validated experimentally for your specific application.
+    Series truncation and numerical convergence depend on the chosen $N$;
+    higher $N$ improves accuracy but increases computation time.
+
+    **Conference presentations**  
+    • Yalamanchili, A. V. & Pagilla, P. (2024). *Steady‑state temperature distribution in moving webs.*  
+    &nbsp;&nbsp;Roll‑to‑Roll (R2R) USA Conference & Expo, Charlotte, NC, USA  
+    • Yalamanchili, A. V. & Pagilla, P. (2024). *Modeling of steady‑state temperature distribution in moving webs in roll‑to‑roll manufacturing.*  
+    &nbsp;&nbsp;ASME Summer Heat Transfer Conference 2024, Anaheim, CA, USA  
+
+    **Citation**
 
 Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
 """,
