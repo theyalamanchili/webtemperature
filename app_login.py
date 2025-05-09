@@ -188,9 +188,11 @@ m^{2} = \frac{h\,P}{k\,A}
 ---
 ***Research Background***
 The model, methods, and code used in this application are part of ongoing research efforts aimed at understanding the steady-state temperature distribution in moving webs, specifically in roll-to-roll (R2R) manufacturing systems. The research has been presented and discussed at the following conferences:
+
 **Conference Presentations**  
    * Yalamanchili, A. V. & Pagilla, P. (2024). *Closd-form analytical solutions for steady‑state temperature distribution in moving webs*. Roll‑to‑Roll (R2R) USA Conference & Expo, Charlotte, NC, USA.  
    * Yalamanchili, A. V. & Pagilla, P. (2024). *Modeling of steady‑state temperature distribution in moving webs in roll‑to‑roll manufacturing*. ASME Summer Heat Transfer Conference 2024, Anaheim, CA, USA.
+
 **Ongoing Pre-Print**  
    * Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing* (In preparation).
 
