@@ -194,7 +194,7 @@ The model, methods, and code used in this application are part of ongoing resear
    * Yalamanchili, A. V. & Pagilla, P. (2024). *Modeling of steady‑state temperature distribution in moving webs in roll‑to‑roll manufacturing*. ASME Summer Heat Transfer Conference 2024, Anaheim, CA, USA.
 
 **Ongoing Pre-Print**  
-   * Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing* (In preparation).
+   * Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing* (In preparation).
 
 
 ---
@@ -216,7 +216,7 @@ By using this application, you acknowledge that you have read, understood, and a
 
 **Citation**
 
-Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
+Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
 """,
         unsafe_allow_html=False,
     )
