@@ -197,9 +197,9 @@ Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State T
 
 # Sidebar Sections
 st.sidebar.header("1. Web Transport Scenario")
-scenario=st.sidebar.selectbox("Scenario",["Free span convective cooling","Web on heated/cooled roller","Web in heating/cooling zone"])
-if scenario=="Free span convective cooling": st.sidebar.image("BC2.png",use_container_width=True)
-elif scenario=="Web on heated/cooled roller": st.sidebar.image("BC1.png",use_container_width=True)
+scenario=st.sidebar.selectbox("Scenario",["Free span convective cooling","Web in heating/cooling zone","Web on heated/cooled roller"])
+if scenario=="Free span convective cooling": st.sidebar.image("BC1.png",use_container_width=True)
+elif scenario=="Web in heating/cooling zone": st.sidebar.image("BC2.png",use_container_width=True)
 else: st.sidebar.image("BC3.png",use_container_width=True)
 
 st.sidebar.header("2. Material Properties")
