@@ -327,15 +327,27 @@ if st.session_state.get('ready'):
         figp.add_trace(go.Scatter(x=x, y=T1, mode="lines",
                                   name="1‑D Lumped (T_1D)", line=dict(dash="dash")))
     figp.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='Temperature (°C)', legend_title='Profiles')
-    st.plotly_chart(figp,use_container_width=True)
-    df_prof=pd.DataFrame({'x':x})
-    if sel['Centerline']: df_prof['centerline']=T2[np.argmin(np.abs(y))]
-    if sel['Top surface']: df_prof['top_surface']=T2[np.argmin(np.abs(y-Yh))]
-    if sel['Bottom surface']: df_prof['bottom_surface']=T2[np.argmin(np.abs(y+Yh))]
-    if sel['Average']: df_prof['avg']=T2.mean(axis=0)
-    if sel['1D Lumped']: df_prof['lumped']=T1
-    buf2=BytesIO();df_prof.to_csv(buf2,index=False);buf2.seek(0)
-    st.download_button("Download Profiles CSV",buf2,"profiles.csv","text/csv")
+    st.plotly_chart(figp, use_container_width=True)
+    # -----------  Build DataFrame for download -----------
+    df_prof = pd.DataFrame({"x": x})
+    
+    # map “menu label ↦ CSV column name ↦ data series”
+    series_map = {
+        "Centerline (T_c)"        : ("T_c",   T2[np.argmin(np.abs(y))]          ),
+        "Top surface (T_top)"     : ("T_top", T2[np.argmin(np.abs(y - Yh))]     ),
+        "Bottom surface (T_bot)"  : ("T_bot", T2[np.argmin(np.abs(y + Yh))]     ),
+        "Thickness‑average (T_avg)": ("T_avg", T2.mean(axis=0)                  ),
+        "1‑D Lumped (T_1D)"       : ("T_1D",  T1                                ),
+    }
+    for label, (col, data) in series_map.items():
+        if sel[label]:                     # only add columns that were plotted
+            df_prof[col] = data
+    # -----------  Offer CSV download -----------
+    buf2 = BytesIO()
+    df_prof.to_csv(buf2, index=False)
+    buf2.seek(0)
+    st.download_button("Download Profiles CSV", buf2,
+                       file_name="profiles.csv", mime="text/csv")
 
     # Differences
     st.subheader("Temperature Differences vs Span")
