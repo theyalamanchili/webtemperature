@@ -302,11 +302,12 @@ if st.sidebar.button("Compute"):
         T1 = solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x)
         st.session_state.update(x=x, y=y, X=X, Yg=Yg, T2=T2, T1=T1,
                                 ready=True)
+        st.rerun()          # ← force a fresh run with the new flag
     else:
         st.warning("Analytical solution for this scenario will be added soon. Please check back.")
         st.session_state.ready = False
 
-    st.rerun()          # ← force a fresh run with the new flag
+    
 
 
 # Display
