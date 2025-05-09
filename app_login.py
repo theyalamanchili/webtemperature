@@ -186,6 +186,16 @@ m^{2} = \frac{h\,P}{k\,A}
    * Differences CSV — span vs. selected differences  
 
 ---
+***Research Background***
+The model, methods, and code used in this application are part of ongoing research efforts aimed at understanding the steady-state temperature distribution in moving webs, specifically in roll-to-roll (R2R) manufacturing systems. The research has been presented and discussed at the following conferences:
+**Conference Presentations**  
+   * Yalamanchili, A. V. & Pagilla, P. (2024). *Closd-form analytical solutions for steady‑state temperature distribution in moving webs*. Roll‑to‑Roll (R2R) USA Conference & Expo, Charlotte, NC, USA.  
+   * Yalamanchili, A. V. & Pagilla, P. (2024). *Modeling of steady‑state temperature distribution in moving webs in roll‑to‑roll manufacturing*. ASME Summer Heat Transfer Conference 2024, Anaheim, CA, USA.
+**Ongoing Pre-Print**  
+   * Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing* (In preparation).
+
+
+---
 
 **Disclaimer**  
 The analytical solutions provided by this application are based on theoretical models with assumptions including constant material properties, steady-state conditions, and idealized boundary conditions. Series truncation is determined by the chosen parameter number of modes. Higher number of modes improves accuracy but may significantly increase computation time.
@@ -199,11 +209,8 @@ The creators and developers of this application assume no responsibility for any
 This application is a work in progress, and the methods, code, and analytical models are actively being tested and refined. We are continuously working to identify and fix potential bugs, errors, and limitations in the calculations. Users are encouraged to report any issues they encounter for further improvement.
 
 By using this application, you acknowledge that you have read, understood, and agreed to the terms of this disclaimer.
-**Conference presentations**  
-    • Yalamanchili, A. V. & Pagilla, P. (2024). *Steady‑state temperature distribution in moving webs.*  
-    &nbsp;&nbsp;Roll‑to‑Roll (R2R) USA Conference & Expo, Charlotte, NC, USA  
-    • Yalamanchili, A. V. & Pagilla, P. (2024). *Modeling of steady‑state temperature distribution in moving webs in roll‑to‑roll manufacturing.*  
-    &nbsp;&nbsp;ASME Summer Heat Transfer Conference 2024, Anaheim, CA, USA  
+
+---
 
 **Citation**
 
