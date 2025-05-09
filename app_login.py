@@ -285,15 +285,18 @@ with st.sidebar.expander("5. Default Parameters",expanded=False):
 if st.sidebar.button("Compute"):
     # collapse the README for all scenarios
     st.session_state.readme_expanded = False
+
     if scenario == "Free span convective cooling":
-        # ---- existing solver call ----
         x, y, X, Yg, T2 = solve_2d(k, rho, c, v, T0, Tinf, h, t, L, N)
         T1 = solve_1d(k, rho, c, v, T0, Tinf, h, t, W, x)
-        st.session_state.update(x=x, y=y, X=X, Yg=Yg, T2=T2, T1=T1)
-        st.session_state.ready = True
+        st.session_state.update(x=x, y=y, X=X, Yg=Yg, T2=T2, T1=T1,
+                                ready=True)
     else:
         st.warning("Analytical solution for this scenario will be added soon. Please check back.")
         st.session_state.ready = False
+
+    st.rerun()          # ← force a fresh run with the new flag
+
 
 # Display
 # Display only for scenarios that have results
