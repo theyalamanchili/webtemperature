@@ -302,19 +302,32 @@ if st.session_state.get('ready'):
     # Profiles
     st.subheader("Temperature Profiles vs Span")
     st.markdown("Curves show *T(x)* at key thickness locations along the span.")
+    # ───────── profile checkboxes ─────────
     sel = {
-    "Centerline (T_c)"        : st.checkbox("Centerline (T_c)",        True),
-    "Top surface (T_top)"     : st.checkbox("Top surface (T_top)",     True),
-    "Bottom surface (T_bot)"  : st.checkbox("Bottom surface (T_bot)",  True),
-    "Thickness‑average (T_avg)": st.checkbox("Thickness‑average (T_avg)", True),
-    "1‑D Lumped (T_1D)"       : st.checkbox("1‑D Lumped (T_1D)",       True),
+        "Centerline (T_c)"        : st.checkbox("Centerline (T_c)",        True),
+        "Top surface (T_top)"     : st.checkbox("Top surface (T_top)",     True),
+        "Bottom surface (T_bot)"  : st.checkbox("Bottom surface (T_bot)",  True),
+        "Thickness‑average (T_avg)": st.checkbox("Thickness‑average (T_avg)", True),
+        "1‑D Lumped (T_1D)"       : st.checkbox("1‑D Lumped (T_1D)",       True),
     }
-    figp=go.Figure()
-    if sel["Centerline (T_c)"]: figp.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y))],mode="lines", name="Centerline (T_c)"))
-    if sel['Top surface']: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Top surface'))
-    if sel['Bottom surface']: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y+Yh))],mode='lines',name='Bottom surface'))
-    if sel['Average']: figp.add_trace(go.Scatter(x=x,y=T2.mean(axis=0),mode='lines',name='Thickness-average'))
-    if sel['1D Lumped']: figp.add_trace(go.Scatter(x=x,y=T1,mode='lines',name='1D Lumped',line=dict(dash='dash')))
+    
+    figp = go.Figure()
+    if sel["Centerline (T_c)"]:
+        figp.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y))],
+                                  mode="lines", name="Centerline (T_c)"))
+    if sel["Top surface (T_top)"]:
+        figp.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y-Yh))],
+                                  mode="lines", name="Top surface (T_top)"))
+    if sel["Bottom surface (T_bot)"]:
+        figp.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y+Yh))],
+                                  mode="lines", name="Bottom surface (T_bot)"))
+    if sel["Thickness‑average (T_avg)"]:
+        figp.add_trace(go.Scatter(x=x, y=T2.mean(axis=0),
+                                  mode="lines", name="Thickness‑average (T_avg)"))
+    if sel["1‑D Lumped (T_1D)"]:
+        figp.add_trace(go.Scatter(x=x, y=T1, mode="lines",
+                                  name="1‑D Lumped (T_1D)", line=dict(dash="dash")))
+
     figp.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='Temperature (°C)', legend_title='Profiles')
     st.plotly_chart(figp,use_container_width=True)
     df_prof=pd.DataFrame({'x':x})
