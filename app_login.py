@@ -204,7 +204,7 @@ m^{2} = \frac{h\,P}{k\,A}
 The model, methods, and code used in this application are part of ongoing research efforts aimed at understanding the steady-state temperature distribution in moving webs, specifically in roll-to-roll (R2R) manufacturing systems. The research has been presented and discussed at the following conferences:
 
 **Publications and Proceedings**  
-   * Lu, Y., & Pagilla, P. R. (2014).*Modeling of temperature distribution in moving webs in roll-to-roll manufacturing. *Journal of Thermal Science and Engineering Applications*, 6(4), 041012.  
+   * Lu, Y., & Pagilla, P. R. (2014). Modeling of temperature distribution in moving webs in roll-to-roll manufacturing. *Journal of Thermal Science and Engineering Applications*, 6(4), 041012.  
    * Cobos Torres, E. O., & Pagilla, P. R. (2017). Temperature distribution in moving webs heated by radiation panels: model development and experimental validation. *Journal of Dynamic Systems, Measurement, and Control*, 139(5), 051003.
    * Jabbar, K. A., & Pagilla, P. R. (2018). Modeling and analysis of web span tension dynamics considering thermal and viscoelastic effects in roll-to-roll manufacturing. *Journal of Manufacturing Science and Engineering*, 140(5), 051005.
    * Lu, Y., & Pagilla, P. R. (2012,). Modeling of temperature distribution in a moving web transported over a heat transfer roller. *Dynamic Systems and Control Conference* (Vol. 45301, pp. 405-414).
