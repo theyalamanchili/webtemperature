@@ -91,7 +91,9 @@ st.title("Web Temperature Distribution Simulator")
 with st.expander("📖 Read Me / User Guide", expanded=True):
     st.markdown("""
 **Overview & Background**  
-In roll-to-roll manufacturing, a moving web reaches a steady-state temperature field where convective cooling along the span balances conduction through thickness.  
+In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones (e.g. ovens, cooling spans, rollers). Predicting its steady‑state temperature field is crucial for avoiding thermal defects (curl, wrinkles, web‑elongation), ensuring process uniformity and improving web tension regulation.   
+
+This app solves two analytical models under *steady‑state* conditions:
 
 **2D convection–diffusion model** (across _y_ and along _x_):
 """, unsafe_allow_html=False)
@@ -109,23 +111,49 @@ In roll-to-roll manufacturing, a moving web reaches a steady-state temperature f
 """
     )
     st.markdown("""
-**Assumptions**: constant _k_,_ρ_,_c_; steady-state (no time term); ideal boundaries; series truncation error ∝1/_N_.
+**Assumptions**  
+- Material properties (_k_, _ρ_, _c_) constant  
+- Steady‑state (no time dependence)  
+- Idealized boundary conditions (convective cooling/roller contact)  
+- Series truncation error ∝ 1/_N_ (increase _N_ for improved accuracy)
 
 ---
 
 **How to Use**  
-1. Complete **sidebar** sections 1–5.  
-2. Click **Compute**.  
-3. Toggle curves via checkboxes under each plot.  
-4. Download CSV data for contours, profiles, and differences.
+1. **Select Web Transport Scenario** (span cooling vs. roller contact vs. heating zone).  
+2. **Set Material Properties** (choose library entry or custom _k_, _ρ_, _c_).  
+3. **Enter Temperatures & Convection** (_T₀_, _T∞_, _h_).  
+4. **Fill Transport & Process Parameters** (_v_, _t_, _W_, _L_).  
+5. **Adjust Default Parameters** (number of eigenmodes _N_).  
+6. Click **Compute**.  
+7. Use the **checkboxes** under each plot to toggle curves.  
+8. Download CSVs of the contour, profiles, or difference data.
 
 **Input Variables**: as labeled in sidebar (with notation in italics and units).
 
-**Computed Outputs**:
-- **2D Temperature Contour** with Turbo colorbar and labels.  
-- **Temperature Profiles** along span at Centerline, Top/Bottom surfaces, Thickness-average, and 1D Lumped.  
-- **Temperature Differences**: Centerline−Top, Average−1D.  
-- **Dimensionless numbers** Bi and Pe shown below contour.
+**Computed Outputs**  
+
+1. **2D Temperature Contour**  
+   - X‑axis = span position (*x*) in m  
+   - Y‑axis = through‑thickness (*y*) in m  
+   - Color = local temperature *T(x,y)*  
+   - Uses the “Turbo” color scale  
+
+2. **Temperature Profiles vs. Span** (select via checkboxes):  
+   - **Centerline:** \(T_c(x)=T(x,y=0)\)  
+   - **Top surface:** \(T_{\rm top}(x)=T(x,y=+t/2)\)  
+   - **Bottom surface:** \(T_{\rm bot}(x)=T(x,y=-t/2)\)  
+   - **Thickness‑average:** \(\displaystyle T_{\rm avg}(x)=\frac{1}{t}\int_{-t/2}^{t/2}T(x,y)\,dy\)  
+   - **1D Lumped Model:** \(T_{1D}(x)\)  
+
+3. **Temperature Differences vs. Span** (select via checkboxes):  
+   - \(\Delta T_{c-\rm top}(x)=T_c(x)-T_{\rm top}(x)\)  
+   - \(\Delta T_{\rm avg-1D}(x)=T_{\rm avg}(x)-T_{1D}(x)\)  
+
+4. **CSV Downloads**  
+   - **Contour CSV:** full (x,y,T) field  
+   - **Profiles CSV:** span vs. selected profiles  
+   - **Differences CSV:** span vs. selected differences  
 ---
 **Citation**: Yalamanchili, A.V.; Pagilla, P.R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
     """, unsafe_allow_html=False)
