@@ -106,7 +106,7 @@ with st.expander("📖 Read Me / User Guide", expanded=st.session_state.
     # ─────────────────────────────
     st.markdown(
         r"""
-This tool was developed by Aditya Yalamanchili under the supervision of Prof. Prabhakar Pagilla at the Department of Mechanical Engineering, Texas A&M University. 
+This tool was developed by Aditya Yalamanchili under the supervision of Prof. Prabhakar Pagilla at the Department of Mechanical Engineering, Texas A&M University. The development of this tool is part of an ongoing research project aimed at advancing the understanding of temperature distribution in moving webs within roll-to-roll (R2R) manufacturing systems. This work builds upon a series of research efforts led by the team, including conference presentations, proceedings and academic manuscripts, as listed in the citations below. These efforts reflect the continuous commitment to refining the theoretical models, validating the solutions through experimental data, and expanding the tool’s capabilities. The tool will be continuously updated as research progresses, incorporating newer solutions, improved algorithms, and additional features to enhance accuracy and usability.
 
 ---
 **Overview & Background**  
