@@ -228,7 +228,16 @@ scenario=st.sidebar.selectbox("Scenario",["Free span convective cooling","Web in
 if scenario=="Free span convective cooling": st.sidebar.image("BC1.png",use_container_width=True)
 elif scenario=="Web in heating/cooling zone": st.sidebar.image("BC2.png",use_container_width=True)
 else: st.sidebar.image("BC3.png",use_container_width=True)
-
+# ───────── brief scenario descriptions ─────────
+scenario_desc = {
+    "Free span convective cooling":
+        "Unsupported span between rollers; both faces cool (or heat) by convection with the surrounding air.",
+    "Web in heating/cooling zone":
+        "Section of free span that traverses a finite‑length oven / furnace / IR panel held at set temperature.",
+    "Web on heated/cooled roller":
+        "Region where the moving web wraps around a temperature‑controlled roller; inner face near roll temperature, outer face sees ambient convection."
+}
+st.sidebar.info(scenario_desc[scenario])
 st.sidebar.header("2. Material Properties")
 matlib={'PET':{'k':0.2,'rho':1390,'c':1400},'Aluminum':{'k':237,'rho':2700,'c':897},'Copper':{'k':401,'rho':8960,'c':385}}
 materials=list(matlib.keys())+['Custom']
