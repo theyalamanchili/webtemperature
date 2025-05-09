@@ -302,9 +302,15 @@ if st.session_state.get('ready'):
     # Profiles
     st.subheader("Temperature Profiles vs Span")
     st.markdown("Curves show *T(x)* at key thickness locations along the span.")
-    sel={ 'Centerline':st.checkbox('Centerline (y=0)',True), 'Top surface':st.checkbox('Top surface (y=+t/2)',True), 'Bottom surface':st.checkbox('Bottom surface (y=-t/2)',True), 'Average':st.checkbox('Thickness-average',True), '1D Lumped':st.checkbox('1D Lumped Model',True) }
+    sel = {
+    "Centerline (T_c)"        : st.checkbox("Centerline (T_c)",        True),
+    "Top surface (T_top)"     : st.checkbox("Top surface (T_top)",     True),
+    "Bottom surface (T_bot)"  : st.checkbox("Bottom surface (T_bot)",  True),
+    "Thickness‑average (T_avg)": st.checkbox("Thickness‑average (T_avg)", True),
+    "1‑D Lumped (T_1D)"       : st.checkbox("1‑D Lumped (T_1D)",       True),
+    }
     figp=go.Figure()
-    if sel['Centerline']: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y))],mode='lines',name='Centerline'))
+    if sel["Centerline (T_c)"]: figp.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y))],mode="lines", name="Centerline (T_c)"))
     if sel['Top surface']: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Top surface'))
     if sel['Bottom surface']: figp.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y+Yh))],mode='lines',name='Bottom surface'))
     if sel['Average']: figp.add_trace(go.Scatter(x=x,y=T2.mean(axis=0),mode='lines',name='Thickness-average'))
