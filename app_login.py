@@ -88,75 +88,112 @@ if not st.session_state.logged_in:
 st.title("Web Temperature Distribution Simulator")
 
 # Read-Me / User Guide
-with st.expander("📖 Read Me / User Guide", expanded=True):
-    st.markdown("""
-**Overview & Background**  
-In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones (e.g. ovens, cooling spans, rollers). Predicting its steady‑state temperature field is crucial for avoiding thermal defects (curl, wrinkles, web‑elongation), ensuring process uniformity and improving web tension regulation.   
+with st.expander("📖 Read Me / User Guide", expanded=True):
 
-This app solves two analytical models under *steady‑state* conditions:
+    # ─────────────────────────────
+    #  Overview
+    # ─────────────────────────────
+    st.markdown(
+        r"""
+**Overview & Background**  
+In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones  
+(e.g.\ ovens, cooling spans, rollers). Predicting its *steady‑state* temperature field is crucial for  
+avoiding thermal defects (curl, wrinkles, web‑elongation), ensuring process uniformity,  
+and improving web‑tension regulation.
 
-**2D convection–diffusion model** (across _y_ and along _x_):
-""", unsafe_allow_html=False)
-    st.latex(r"""
-\frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} - 2\beta \frac{\partial T}{\partial x} = 0\\
-\beta=\frac{\rho \, c \, v}{2 \, k}
+This app solves two analytical models under steady‑state conditions:
+
+**2‑D convection–diffusion model** (across *y* and along *x*):
+""",
+        unsafe_allow_html=False,
+    )
+
+    st.latex(
+        r"""
+\frac{\partial^{2} T}{\partial x^{2}}
+  + \frac{\partial^{2} T}{\partial y^{2}}
+  - 2\beta \frac{\partial T}{\partial x}=0,
+\qquad
+\beta = \frac{\rho\,c\,v}{2\,k}
 """
     )
-    st.markdown("""
-**1D lumped‑capacitance model** (uniform through‑thickness):
-""", unsafe_allow_html=False)
-    st.latex(r"""
-\frac{d^2 T}{dx^2} - 2\beta \frac{d T}{dx} - m^2\bigl(T - T_\infty\bigr) = 0\\
- m^2 = \frac{h \, P}{k \, A}
+
+    st.markdown(
+        r"""
+**1‑D lumped‑capacitance model** (uniform through‑thickness):
+""",
+        unsafe_allow_html=False,
+    )
+
+    st.latex(
+        r"""
+\frac{d^{2} T}{d x^{2}}
+  - 2\beta \frac{d T}{d x}
+  - m^{2}\!\left(T - T_{\infty}\right)=0,
+\qquad
+m^{2} = \frac{h\,P}{k\,A}
 """
     )
-    st.markdown("""
-**Assumptions**  
-- Material properties (_k_, _ρ_, _c_) constant  
-- Steady‑state (no time dependence)  
-- Idealized boundary conditions (convective cooling/roller contact)  
-- Series truncation error ∝ 1/_N_ (increase _N_ for improved accuracy)
+
+    # ─────────────────────────────
+    #  Assumptions
+    # ─────────────────────────────
+    st.markdown(
+        r"""
+**Assumptions**
+
+* Material properties ($k$, $\rho$, $c$) constant  
+* Steady‑state (no time dependence)  
+* Idealised boundary conditions (convective cooling / roller contact)  
+* Series truncation error $\propto 1/N$ (increase $N$ for higher accuracy)
 
 ---
 
-**How to Use**  
-1. **Select Web Transport Scenario** (span cooling vs. roller contact vs. heating zone).  
-2. **Set Material Properties** (choose library entry or custom _k_, _ρ_, _c_).  
-3. **Enter Temperatures & Convection** (_T₀_, _T∞_, _h_).  
-4. **Fill Transport & Process Parameters** (_v_, _t_, _W_, _L_).  
-5. **Adjust Default Parameters** (number of eigenmodes _N_).  
+**How to Use**
+
+1. **Select Web Transport Scenario** (span cooling, roller contact, or heating zone).  
+2. **Set Material Properties** (choose library entry or custom $k$, $\rho$, $c$).  
+3. **Enter Temperatures & Convection** ($T_{0}$, $T_{\infty}$, $h$).  
+4. **Fill Transport & Process Parameters** ($v$, $t$, $W$, $L$).  
+5. **Adjust Default Parameters** (number of eigen‑modes $N$).  
 6. Click **Compute**.  
-7. Use the **checkboxes** under each plot to toggle curves.  
+7. Use the **checkboxes** beneath each plot to toggle curves.  
 8. Download CSVs of the contour, profiles, or difference data.
 
-**Input Variables**: as labeled in sidebar (with notation in italics and units).
+**Input Variables** — see sidebar labels (italic notation, SI units).
 
-**Computed Outputs**  
+**Computed Outputs**
 
-1. **2D Temperature Contour**  
-   - X‑axis = span position (*x*) in m  
-   - Y‑axis = through‑thickness (*y*) in m  
-   - Color = local temperature *T(x,y)*  
-   - Uses the “Turbo” color scale  
+1. **2‑D Temperature Contour**  
+   * *x*‑axis: span position $x$ (m)  
+   * *y*‑axis: through‑thickness $y$ (m)  
+   * Colour: local temperature $T(x,y)$ (Turbo scale)
 
-2. **Temperature Profiles vs. Span** (select via checkboxes):  
-   - **Centerline:** \(T_c(x)=T(x,y=0)\)
-   - **Top surface:** \(T_{\rm top}(x)=T(x,y=+t/2)\)  
-   - **Bottom surface:** \(T_{\rm bot}(x)=T(x,y=-t/2)\)  
-   - **Thickness‑average:** \(\displaystyle T_{\rm avg}(x)=\frac{1}{t}\int_{-t/2}^{t/2}T(x,y)\,dy\)  
-   - **1D Lumped Model:** \(T_{1D}(x)\)  
+2. **Temperature Profiles vs. Span**  
+   * Centre‑line: $T_{\mathrm{c}}(x)=T(x,0)$  
+   * Top surface: $T_{\mathrm{top}}(x)=T\!\bigl(x,+t/2\bigr)$  
+   * Bottom surface: $T_{\mathrm{bot}}(x)=T\!\bigl(x,-t/2\bigr)$  
+   * Thickness‑average: $\displaystyle T_{\mathrm{avg}}(x)=\frac{1}{t}\int_{-t/2}^{t/2}T(x,y)\,dy$  
+   * 1‑D lumped model: $T_{1\mathrm{D}}(x)$  
 
-3. **Temperature Differences vs. Span** (select via checkboxes):  
-   - \(\Delta T_{c-\rm top}(x)=T_c(x)-T_{\rm top}(x)\)  
-   - \(\Delta T_{\rm avg-1D}(x)=T_{\rm avg}(x)-T_{1D}(x)\)  
+3. **Temperature Differences vs. Span**  
+   * $\Delta T_{c-\mathrm{top}}(x)=T_{\mathrm{c}}(x)-T_{\mathrm{top}}(x)$  
+   * $\Delta T_{\mathrm{avg}-1\mathrm{D}}(x)=T_{\mathrm{avg}}(x)-T_{1\mathrm{D}}(x)$  
 
 4. **CSV Downloads**  
-   - **Contour CSV:** full (x,y,T) field  
-   - **Profiles CSV:** span vs. selected profiles  
-   - **Differences CSV:** span vs. selected differences  
+   * Contour CSV — full $(x,y,T)$ field  
+   * Profiles CSV — span vs. selected profiles  
+   * Differences CSV — span vs. selected differences  
+
 ---
-**Citation**: Yalamanchili, A.V.; Pagilla, P.R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
-    """, unsafe_allow_html=False)
+
+**Citation**
+
+Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Modeling Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
+""",
+        unsafe_allow_html=False,
+    )
+
 
 # Sidebar Sections
 st.sidebar.header("1. Web Transport Scenario")
