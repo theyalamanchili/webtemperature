@@ -33,17 +33,23 @@ def login():
     st.image(logo, width=300)
     st.subheader("Please log in to continue")
 
-    user = st.text_input("Username")
-    pwd  = st.text_input("Password", type="password")
+    # ----- one-shot form -----
+    with st.form("login_form"):
+        user = st.text_input("Username")
+        pwd  = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Login")   # ↵ also submits
 
-    if st.button("Login"):
-        creds = {"Guest":"GuestPass","Aditya":"Yalamanchili","Prabhakar":"Pagilla","admin":"adminpass"}
+    if submitted:
+        creds = {"Guest": "GuestPass",
+                 "Aditya": "Yalamanchili",
+                 "Prabhakar": "Pagilla",
+                 "admin": "adminpass"}
         if creds.get(user) == pwd:
             st.session_state.logged_in = True
-            if hasattr(st, 'experimental_rerun'):
-                st.experimental_rerun()
+            st.rerun()     # works on all recent Streamlit versions
         else:
             st.error("Invalid username or password.")
+
 
 # -----------------------------------------------
 # Solvers
