@@ -106,7 +106,7 @@ with st.expander("📖 Read Me / User Guide", expanded=st.session_state.
     # ─────────────────────────────
     st.markdown(
         r"""
-This tool was developed by Aditya Yalamanchili under the supervision of Prog. Prabhaar Pagilla at the Department of Mechanical Engineering, Texas A&M University. 
+This tool was developed by Aditya Yalamanchili under the supervision of Prog. Prabhakar Pagilla at the Department of Mechanical Engineering, Texas A&M University. 
 
 ---
 **Overview & Background**  
