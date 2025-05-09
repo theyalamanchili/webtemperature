@@ -88,7 +88,7 @@ if not st.session_state.logged_in:
 st.title("Web Temperature Distribution Simulator")
 
 # Read-Me / User Guide
-with st.expander("📖 Read Me / User Guide", expanded=False):
+with st.expander("📖 Read Me / User Guide", expanded=True):
     st.markdown("""
 **Overview & Background**  
 In roll-to-roll manufacturing, a moving web reaches a steady-state temperature field where convective cooling along the span balances conduction through thickness.  
