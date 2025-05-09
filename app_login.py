@@ -372,11 +372,23 @@ if st.session_state.get('ready'):
             mode="lines", name="ΔT_avg-1D"
         ))
     figd.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='ΔTemperature (°C)', legend_title='Differences')
-    st.plotly_chart(figd,use_container_width=True)
-    df_diff=pd.DataFrame({'x':x})
-    if ds['Centerline-Top']: df_diff['ctop']=T2[np.argmin(np.abs(y))]-T2[np.argmin(np.abs(y-Yh))]
-    if ds['Avg-1D']: df_diff['avg1d']=T2.mean(axis=0)-T1
-    buf3=BytesIO();df_diff.to_csv(buf3,index=False);buf3.seek(0)
-    st.download_button("Download Differences CSV",buf3,"differences.csv","text/csv")
+    st.plotly_chart(figd, use_container_width=True)
+    # -----------  Build DataFrame for download -----------
+    df_diff = pd.DataFrame({"x": x}) 
+    diff_map = {
+        "ΔT_c-top":  ("dT_c_top",  T2[np.argmin(np.abs(y))] - T2[np.argmin(np.abs(y - Yh))]),
+        "ΔT_avg-1D": ("dT_avg_1D", T2.mean(axis=0)          - T1),
+    }
+    for label, (col, data) in diff_map.items():
+        if ds[label]:                    # only add the columns that were displayed
+            df_diff[col] = data
+    
+    # -----------  Offer CSV download -----------
+    buf3 = BytesIO()
+    df_diff.to_csv(buf3, index=False)
+    buf3.seek(0)
+    st.download_button("Download Differences CSV", buf3,
+                       file_name="differences.csv", mime="text/csv")
+
 
 footer()
