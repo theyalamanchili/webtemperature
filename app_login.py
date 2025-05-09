@@ -274,7 +274,7 @@ if st.session_state.get('ready'):
     Yh=t/2; Bi=h*Yh/k; Pe=v*L/(k/(rho*c))
 
     st.subheader("2D Temperature Contour")
-    st.markdown("**X-axis:** span (m) — **Y-axis:** thickness (m)")
+    st.markdown("**X-axis:** Span location (m) — **Y-axis:** Transverse (through-thickness) location within web (m)")
 # ───────── contour figure ─────────
     show = st.checkbox("Show contour lines & labels", value=True)
     
@@ -326,7 +326,7 @@ if st.session_state.get('ready'):
     if sel["1‑D Lumped (T_1D)"]:
         figp.add_trace(go.Scatter(x=x, y=T1, mode="lines",
                                   name="1‑D Lumped (T_1D)", line=dict(dash="dash")))
-    figp.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='Temperature (°C)', legend_title='Profiles')
+    figp.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span location (m)', yaxis_title='Temperature (°C)', legend_title='Profiles')
     st.plotly_chart(figp, use_container_width=True)
     # -----------  Build DataFrame for download -----------
     df_prof = pd.DataFrame({"x": x})
@@ -371,7 +371,7 @@ if st.session_state.get('ready'):
             y=T2.mean(axis=0) - T1,
             mode="lines", name="ΔT_avg-1D"
         ))
-    figd.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='ΔTemperature (°C)', legend_title='Differences')
+    figd.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span location (m)', yaxis_title='ΔTemperature (°C)', legend_title='Differences')
     st.plotly_chart(figd, use_container_width=True)
     # -----------  Build DataFrame for download -----------
     df_diff = pd.DataFrame({"x": x}) 
