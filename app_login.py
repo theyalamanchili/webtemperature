@@ -276,25 +276,24 @@ if st.session_state.get('ready'):
     st.subheader("2D Temperature Contour")
     st.markdown("**X-axis:** span (m) — **Y-axis:** thickness (m)")
 # ───────── contour figure ─────────
-show = st.checkbox("Show contour lines & labels", value=True)
-
-fig = go.Figure(
-    go.Contour(
-        z=T2, x=x, y=y,
-        colorscale="Turbo", ncontours=60,
-        contours=dict(showlines=show, showlabels=show,
-                      labelfont=dict(size=12)),
-        colorbar=dict(title="Temperature (°C)")
+    show = st.checkbox("Show contour lines & labels", value=True)
+    
+    fig = go.Figure(
+        go.Contour(
+            z=T2, x=x, y=y,
+            colorscale="Turbo", ncontours=60,
+            contours=dict(showlines=show, showlabels=show,
+                          labelfont=dict(size=12)),
+            colorbar=dict(title="Temperature (°C)")
+        )
     )
-)
-fig.update_layout(
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    xaxis_title="Span location,  x  (m)",
-    yaxis_title="Transverse location within web,  y  (m)"
-)
-st.plotly_chart(fig, use_container_width=True)
-
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        xaxis_title="Span location,  x  (m)",
+        yaxis_title="Transverse location within web,  y  (m)"
+    )
+    st.plotly_chart(fig, use_container_width=True)
     df_cont=pd.DataFrame({'x':X.flatten(),'y':Yg.flatten(),'T':T2.flatten()})
     buf1=BytesIO();df_cont.to_csv(buf1,index=False);buf1.seek(0)
     st.download_button("Download Contour CSV",buf1,"contour.csv","text/csv")
