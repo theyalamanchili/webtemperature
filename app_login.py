@@ -310,7 +310,6 @@ if st.session_state.get('ready'):
         "Thickness‑average (T_avg)": st.checkbox("Thickness‑average (T_avg)", True),
         "1‑D Lumped (T_1D)"       : st.checkbox("1‑D Lumped (T_1D)",       True),
     }
-    
     figp = go.Figure()
     if sel["Centerline (T_c)"]:
         figp.add_trace(go.Scatter(x=x, y=T2[np.argmin(np.abs(y))],
@@ -327,7 +326,6 @@ if st.session_state.get('ready'):
     if sel["1‑D Lumped (T_1D)"]:
         figp.add_trace(go.Scatter(x=x, y=T1, mode="lines",
                                   name="1‑D Lumped (T_1D)", line=dict(dash="dash")))
-
     figp.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='Temperature (°C)', legend_title='Profiles')
     st.plotly_chart(figp,use_container_width=True)
     df_prof=pd.DataFrame({'x':x})
@@ -342,10 +340,25 @@ if st.session_state.get('ready'):
     # Differences
     st.subheader("Temperature Differences vs Span")
     st.markdown("Difference curves to highlight deviations between profiles.")
-    ds={ 'Centerline-Top':st.checkbox('Centerline – Top surface',True), 'Avg-1D':st.checkbox('Thickness-average – 1D Lumped',True) }
-    figd=go.Figure()
-    if ds['Centerline-Top']: figd.add_trace(go.Scatter(x=x,y=T2[np.argmin(np.abs(y))]-T2[np.argmin(np.abs(y-Yh))],mode='lines',name='Centerline–Top'))
-    if ds['Avg-1D']: figd.add_trace(go.Scatter(x=x,y=T2.mean(axis=0)-T1,mode='lines',name='Avg–1D'))
+    # ───────── difference checkboxes ─────────
+    ds = {
+        "ΔT_c-top"   : st.checkbox("ΔT_c-top",   True),
+        "ΔT_avg-1D"  : st.checkbox("ΔT_avg-1D",  True),
+    }
+    
+    figd = go.Figure()
+    if ds["ΔT_c-top"]:
+        figd.add_trace(go.Scatter(
+            x=x,
+            y=T2[np.argmin(np.abs(y))] - T2[np.argmin(np.abs(y-Yh))],
+            mode="lines", name="ΔT_c-top"
+        ))
+    if ds["ΔT_avg-1D"]:
+        figd.add_trace(go.Scatter(
+            x=x,
+            y=T2.mean(axis=0) - T1,
+            mode="lines", name="ΔT_avg-1D"
+        ))
     figd.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', xaxis_title='Span (m)', yaxis_title='ΔTemperature (°C)', legend_title='Differences')
     st.plotly_chart(figd,use_container_width=True)
     df_diff=pd.DataFrame({'x':x})
