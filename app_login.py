@@ -140,7 +140,7 @@ This app solves two analytical models under *steady‑state* conditions:
    - Uses the “Turbo” color scale  
 
 2. **Temperature Profiles vs. Span** (select via checkboxes):  
-   - **Centerline:** \(T_c(x)=T(x,y=0)\)  
+   - **Centerline:** st.latex(r"""\(T_c(x)=T(x,y=0)\)""")  
    - **Top surface:** \(T_{\rm top}(x)=T(x,y=+t/2)\)  
    - **Bottom surface:** \(T_{\rm bot}(x)=T(x,y=-t/2)\)  
    - **Thickness‑average:** \(\displaystyle T_{\rm avg}(x)=\frac{1}{t}\int_{-t/2}^{t/2}T(x,y)\,dy\)  
