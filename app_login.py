@@ -1,4 +1,10 @@
 import streamlit as st
+st.set_page_config(
+    page_title="Web Temperature Distribution Simulator",
+    layout="wide",                       # optional, if you like a wider layout
+    initial_sidebar_state="expanded"     # ← makes the sidebar open by default
+)
+
 from PIL import Image
 import numpy as np
 import pandas as pd
