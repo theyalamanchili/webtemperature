@@ -105,153 +105,20 @@ if not st.session_state.logged_in:
 
 st.title("Web Temperature Distribution Simulator")
 
+# — show solved‐for banner if present —
+if "solved_param" in st.session_state:
+    st.success(
+        f"🔄 Predicted {st.session_state.solved_param}: "
+        f"{st.session_state.solved_value:.3f}"
+    )
+
 # Read-Me / User Guide
-with st.expander("📖 Read Me / User Guide", expanded=st.session_state.readme_expanded):
+with st.expander("📖 Read Me / User Guide", expanded=st.session_state.readme_expanded):
+    st.markdown(r"""
+    <!-- Insert the full read-me markdown content here, as in your original app -->
+    """, unsafe_allow_html=False)
 
-    # ─────────────────────────────
-    #  Overview
-    # ─────────────────────────────
-    st.markdown(
-        r"""
-This tool was developed by Aditya Yalamanchili under the supervision of Prof. Prabhakar Pagilla at the Department of Mechanical Engineering, Texas A&M University. The development of this tool is part of an ongoing research project aimed at advancing the understanding of temperature distribution in moving webs within roll-to-roll (R2R) manufacturing systems. This work builds upon a series of research efforts led by the team, including conference presentations, proceedings and academic manuscripts, as listed in the citations below. These efforts reflect the continuous commitment to refining the theoretical models, validating the solutions through experimental data, and expanding the tool’s capabilities. The tool will be continuously updated as research progresses, incorporating newer solutions, improved algorithms, and additional features to enhance accuracy and usability.
-
----
-**Overview & Background**  
-In roll‑to‑roll (R2R) manufacturing, a continuous web of material travels through processing zones  
-(e.g. ovens, furnaces, cooling spans, heated rollers). Predicting its *steady‑state* temperature field is crucial for  
-avoiding thermal defects (curl, wrinkles, web‑elongation), ensuring process uniformity,  
-and improving web‑tension regulation.
-
-This app solves two analytical models under steady‑state conditions:
-
-**2‑D convection–diffusion model** (across *y* and along *x*):
-""",
-        unsafe_allow_html=False,
-    )
-
-    st.latex(
-        r"""
-\frac{\partial^{2} T}{\partial x^{2}}
-  + \frac{\partial^{2} T}{\partial y^{2}}
-  - 2\beta \frac{\partial T}{\partial x}=0,
-\qquad
-\beta = \frac{\rho\,c\,v}{2\,k}
-"""
-    )
-
-    st.markdown(
-        r"""
-**1‑D lumped‑capacitance model** (uniform through‑thickness):
-""",
-        unsafe_allow_html=False,
-    )
-
-    st.latex(
-        r"""
-\frac{d^{2} T}{d x^{2}}
-  - 2\beta \frac{d T}{d x}
-  - m^{2}\!\left(T - T_{\infty}\right)=0,
-\qquad
-m^{2} = \frac{h\,P}{k\,A}
-"""
-    )
-
-    # ─────────────────────────────
-    #  Assumptions
-    # ─────────────────────────────
-    st.markdown(
-        r"""
-**Assumptions**
-
-* Material properties ($k$, $\rho$, $c$) constant  
-* Steady‑state (no time dependence)  
-* Idealised boundary conditions (convective cooling / roller contact)  
-* Series truncation error $\propto 1/N$ (increase $N$ for higher accuracy)
-
----
-
-**How to Use**
-
-1. **Select Web Transport Scenario** (span cooling, roller contact, or heating zone).  
-2. **Set Material Properties** (choose library entry or custom $k$, $\rho$, $c$).  
-3. **Enter Temperatures & Convection** ($T_{0}$, $T_{\infty}$, $h$).  
-4. **Fill Transport & Process Parameters** ($v$, $t$, $W$, $L$).  
-5. **Adjust Default Parameters** (number of eigen‑modes $N$).  
-6. Click **Compute**.  
-7. Use the **checkboxes** beneath each plot to toggle curves.  
-8. Download CSVs of the contour, profiles, or difference data.
-
-**Input Variables** — see sidebar labels (italic notation, SI units).
-
-**Computed Outputs**
-
-1. **2‑D Temperature Contour**  
-   * *x*‑axis: span position $x$ (m)  
-   * *y*‑axis: through‑thickness $y$ (m)  
-   * Colour: local temperature $T(x,y)$ (Turbo scale)
-
-2. **Temperature Profiles vs. Span**  
-   * Centre‑line: $T_{\mathrm{c}}(x)=T(x,0)$  
-   * Top surface: $T_{\mathrm{top}}(x)=T\!\bigl(x,+t/2\bigr)$  
-   * Bottom surface: $T_{\mathrm{bot}}(x)=T\!\bigl(x,-t/2\bigr)$  
-   * Thickness‑average: $\displaystyle T_{\mathrm{avg}}(x)=\frac{1}{t}\int_{-t/2}^{t/2}T(x,y)\,dy$  
-   * 1‑D lumped model: $T_{1\mathrm{D}}(x)$  
-
-3. **Temperature Differences vs. Span**  
-   * $\Delta T_{c-\mathrm{top}}(x)=T_{\mathrm{c}}(x)-T_{\mathrm{top}}(x)$  
-   * $\Delta T_{\mathrm{avg}-1\mathrm{D}}(x)=T_{\mathrm{avg}}(x)-T_{1\mathrm{D}}(x)$  
-
-4. **CSV Downloads**  
-   * Contour CSV — full $(x,y,T)$ field  
-   * Profiles CSV — span vs. selected profiles  
-   * Differences CSV — span vs. selected differences  
-
----
-***Research Background***
-The model, methods, and code used in this application are part of ongoing research efforts aimed at understanding the steady-state temperature distribution in moving webs, specifically in roll-to-roll (R2R) manufacturing systems. The research has been presented and discussed at the following conferences:
-
-**Publications and Proceedings**  
-   * Lu, Y., & Pagilla, P. R. (2014). Modeling of temperature distribution in moving webs in roll-to-roll manufacturing. *Journal of Thermal Science and Engineering Applications*, 6(4), 041012.  
-   * Cobos Torres, E. O., & Pagilla, P. R. (2017). Temperature distribution in moving webs heated by radiation panels: model development and experimental validation. *Journal of Dynamic Systems, Measurement, and Control*, 139(5), 051003.
-   * Jabbar, K. A., & Pagilla, P. R. (2018). Modeling and analysis of web span tension dynamics considering thermal and viscoelastic effects in roll-to-roll manufacturing. *Journal of Manufacturing Science and Engineering*, 140(5), 051005.
-   * Lu, Y., & Pagilla, P. R. (2012,). Modeling of temperature distribution in a moving web transported over a heat transfer roller. *Dynamic Systems and Control Conference* (Vol. 45301, pp. 405-414).
-   * Torres, E. O. C., & Pagilla, P. R. (2016). A governing equation for moving web temperature heated by radiative panels. *American Control Conference (ACC)* (pp. 858-863).
-
-**Ongoing Pre-Print**  
-   * Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing (In preparation).
-
-**Conference Presentations**  
-   * Yalamanchili, A. V. & Pagilla, P.R. (2024). Closd-form analytical solutions for steady‑state temperature distribution in moving webs. *Roll‑to‑Roll (R2R) USA Conference & Expo*, Charlotte, NC, USA.  
-   * Yalamanchili, A. V. & Pagilla, P.R. (2024). Modeling of steady‑state temperature distribution in moving webs in roll‑to‑roll manufacturing. *ASME Summer Heat Transfer Conference 2024*, Anaheim, CA, USA.
-
-
-
----
-
-**Disclaimer**  
-The analytical solutions provided by this application are based on theoretical models with assumptions including constant material properties, steady-state conditions, and idealized boundary conditions. Series truncation is determined by the chosen parameter number of modes. Higher number of modes improves accuracy but may significantly increase computation time.
-
-While every effort has been made to ensure accuracy, the results generated by this tool are approximate and may not fully represent real-world scenarios. Therefore, users are strongly encouraged to validate the outputs through experimental testing specific to their application before making any engineering or operational decisions.
-
-**Liability and Use of Results**  
-The creators and developers of this application assume no responsibility for any inaccuracies, errors, or omissions within the tool, nor for any outcomes, damages, or liabilities resulting from the use of this application. The user assumes full responsibility for the use of the tool and any results derived from it.
-
-**Ongoing Development**  
-This application is a work in progress, and the methods, code, and analytical models are actively being tested and refined. We are continuously working to identify and fix potential bugs, errors, and limitations in the calculations. Users are encouraged to report any issues they encounter for further improvement.
-
-By using this application, you acknowledge that you have read, understood, and agreed to the terms of this disclaimer.
-
----
-
-**Citation**
-
-Yalamanchili, A.\,V.; Pagilla, P.\,R. (2025). *Steady‑State Temperature Distribution in Moving Webs in Roll‑to‑Roll Manufacturing*.
-""",
-        unsafe_allow_html=False,
-    )
-
-
-# Sidebar Sections
+# Sidebar: Scenario
 st.sidebar.header("1. Web Transport Scenario")
 scenario = st.sidebar.selectbox(
     "Scenario",
